@@ -52,8 +52,7 @@ password: $password
     }
     ```
    服务器发给客户端的数据可能是响应，也可能是推送，由 type 的值区分。
-   response、responseError 表示正常、异常响应；
-   push 表示推送。
+   response 表示响应，push 表示推送。
 
 ### 请求-应答式
 该部分默认服务器正常响应
@@ -171,11 +170,8 @@ message | | 消息
 响应：
 ```json
 {
-  "type": "responseError",
-  "data": {
-    "code": 1,
-    "msg": ""
-  }
+  "code": 1,
+  "msg": ""
 }
 ```
 
@@ -183,8 +179,8 @@ message | | 消息
 
 code | 原因 | msg
 ---|---|---
-1 |  | 身份认证失败
-2 | 命令或负载不正确 | 无法解析请求
+1 | 身份认证失败 | Authenticate failed.
+2 | 命令或负载不正确 | Request cannot be resolved.
 
 
 ### 推送式
