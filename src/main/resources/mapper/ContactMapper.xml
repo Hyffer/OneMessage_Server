@@ -16,4 +16,8 @@
             limit #{limit}
         </if>
     </select>
+
+    <select id="getContactTotal" resultType="int">
+        select total from contact where _CID=#{_CID}
+    </select>
 </mapper>

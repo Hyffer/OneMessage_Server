@@ -12,4 +12,11 @@ public interface ContactMapper {
 
     List<Contact> searchContacts(String key, int limit);
 
+    /**
+     * Get the total number of messages of a contact
+     * @param _CID id of the contact
+     * @return the total number, or null indicates an error
+     */
+    Integer getContactTotal(int _CID);
+
 }

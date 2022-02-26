@@ -12,12 +12,13 @@ import xyz.hyffer.onemessage_server.client_api.payload.RequestBody;
 import xyz.hyffer.onemessage_server.client_api.payload.Send;
 import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
 import xyz.hyffer.onemessage_server.client_api.service.ClientRequestService;
-import xyz.hyffer.onemessage_server.client_api.service.UnexpectedPayloadException;
+import xyz.hyffer.onemessage_server.client_api.service.UnexpectedValueException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 
 import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.ResponseBody.ResponseCode.UNEXPECTED_REQUEST;
+import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.ResponseBody.ResponseCode.UNEXPECTED_VALUE;
 
 @Service
 public class WebSocketHandler extends TextWebSocketHandler {
@@ -54,8 +55,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 responseBody = requestService.postMessage((RequestBody.RequestBody_post_message) requestBody);
             }
             send.construct(responseBody);
-        } catch (JsonProcessingException | UnexpectedPayloadException e) {
+        } catch (JsonProcessingException e) {
             send.construct(new SendBody.ResponseBody.ResponseBody_error(UNEXPECTED_REQUEST));
+        } catch (UnexpectedValueException e) {
+            send.construct(new SendBody.ResponseBody.ResponseBody_error(UNEXPECTED_VALUE));
         }
 
         try {

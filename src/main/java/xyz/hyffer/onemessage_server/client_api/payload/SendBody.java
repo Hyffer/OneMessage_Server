@@ -16,7 +16,8 @@ public abstract class SendBody {
         public enum ResponseCode {
             SUCCESS,
             AUTHENTICATE_FAILED,
-            UNEXPECTED_REQUEST
+            UNEXPECTED_REQUEST,
+            UNEXPECTED_VALUE
         }
 
         public ResponseBody(ResponseCode code) {
@@ -41,6 +42,11 @@ public abstract class SendBody {
         @Data
         public static class ResponseBody_get_messages extends ResponseBody {
             ArrayList<Message> messages;
+
+            public ResponseBody_get_messages(List<Message> messages) {
+                super();
+                this.messages = (ArrayList<Message>) messages;
+            }
         }
 
         @Data
@@ -59,6 +65,10 @@ public abstract class SendBody {
                         break;
                     case UNEXPECTED_REQUEST:
                         msg = "Request cannot be resolved.";
+                        break;
+                    case UNEXPECTED_VALUE:
+                        msg = "Unexpected value.";
+                        break;
                 }
             }
         }

@@ -177,10 +177,11 @@ message | | 消息
 
 异常码
 
-code | 原因 | msg
+code | msg | 原因
 ---|---|---
-1 | 身份认证失败 | Authenticate failed.
-2 | 命令或负载不正确 | Request cannot be resolved.
+1 | Authenticate failed. | 身份认证失败
+2 | Request cannot be resolved. | 命令或负载不正确，请求JSON文本无法反序列化
+3 | Unexpected value. | 请求值异常
 
 
 ### 推送式

@@ -9,8 +9,28 @@
 > 
 > [mirai-api-http/MessageType.md](https://github.com/project-mirai/mirai-api-http/blob/master/docs/api/MessageType.md)
 > 
-> [onebot-11/segment.md](https://github.com/botuniverse/onebot-11/blob/master/message/segment.md#%E6%9F%90%E4%BA%BA)
+> [onebot-11/segment.md](https://github.com/botuniverse/onebot-11/blob/master/message/segment.md)
 
 ## 消息段类型
 
+### 纯文本
 
+```json
+{
+  "type": "plaintext",
+  "content": {
+    "text": "This is plain text."
+  }
+}
+```
+
+### 图片
+
+```json
+{
+  "type": "image",
+  "content": {
+    "url": "https://example.com/img.jpg"
+  }
+}
+```
