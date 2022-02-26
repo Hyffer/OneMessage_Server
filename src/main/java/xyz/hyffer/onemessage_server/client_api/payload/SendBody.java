@@ -1,10 +1,11 @@
-package xyz.hyffer.onemessage_server.client_api.data;
+package xyz.hyffer.onemessage_server.client_api.payload;
 
 import lombok.Data;
 import xyz.hyffer.onemessage_server.storage.component.Contact;
 import xyz.hyffer.onemessage_server.storage.component.Message;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class SendBody {
 
@@ -30,6 +31,11 @@ public abstract class SendBody {
         @Data
         public static class ResponseBody_get_contacts extends ResponseBody {
             ArrayList<Contact> contacts;
+
+            public ResponseBody_get_contacts(List<Contact> contacts) {
+                super();
+                this.contacts = (ArrayList<Contact>) contacts;
+            }
         }
 
         @Data

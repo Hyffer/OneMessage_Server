@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="xyz.hyffer.onemessage_server.storage.mapper.ContactMapper">
+    <select id="getContacts" resultType="Contact">
+        select * from contact order by lastMsgTime desc
+        <if test="limit != 0">
+            limit #{limit}
+        </if>
+    </select>
+
+    <select id="searchContacts" resultType="Contact">
+        <bind name="search_pattern" value="'%' + key + '%'"/>
+        select * from contact where remark like #{search_pattern}
+        <if test="limit != 0">
+            limit #{limit}
+        </if>
+    </select>
+</mapper>

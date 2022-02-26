@@ -7,21 +7,26 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import xyz.hyffer.onemessage_server.client_api.data.Request;
-import xyz.hyffer.onemessage_server.client_api.data.RequestBody;
-import xyz.hyffer.onemessage_server.client_api.data.Send;
-import xyz.hyffer.onemessage_server.client_api.data.SendBody;
+import xyz.hyffer.onemessage_server.client_api.payload.Request;
+import xyz.hyffer.onemessage_server.client_api.payload.RequestBody;
+import xyz.hyffer.onemessage_server.client_api.payload.Send;
+import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.service.ClientRequestService;
+import xyz.hyffer.onemessage_server.client_api.service.UnexpectedPayloadException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 
-import static xyz.hyffer.onemessage_server.client_api.data.SendBody.ResponseBody.ResponseCode.UNEXPECTED_REQUEST;
+import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.ResponseBody.ResponseCode.UNEXPECTED_REQUEST;
 
 @Service
 public class WebSocketHandler extends TextWebSocketHandler {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @Resource
+    private ClientRequestService requestService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -36,12 +41,20 @@ public class WebSocketHandler extends TextWebSocketHandler {
         Send send = new Send();
         try {
             request = objectMapper.readValue(payload, Request.class);
-            if (request.getBody() instanceof RequestBody.RequestBody_get_contacts) System.out.println("get_contacts");
-            else if (request.getBody() instanceof RequestBody.RequestBody_get_messages) System.out.println("get_messages");
-            else if (request.getBody() instanceof RequestBody.RequestBody_update_status) System.out.println("update_status");
-            else if (request.getBody() instanceof RequestBody.RequestBody_post_message) System.out.println("post_message");
-            send.construct(new SendBody.ResponseBody.ResponseBody_no_content());
-        } catch (JsonProcessingException e) {
+            System.out.println(request);
+            RequestBody requestBody = request.getBody();
+            SendBody.ResponseBody responseBody;
+            if (requestBody instanceof RequestBody.RequestBody_get_contacts) {
+                responseBody = requestService.getContacts((RequestBody.RequestBody_get_contacts) requestBody);
+            } else if (requestBody instanceof RequestBody.RequestBody_get_messages) {
+                responseBody = requestService.getMessages((RequestBody.RequestBody_get_messages) requestBody);
+            } else if (requestBody instanceof RequestBody.RequestBody_update_status) {
+                responseBody = requestService.updateStatus((RequestBody.RequestBody_update_status) requestBody);
+            } else {
+                responseBody = requestService.postMessage((RequestBody.RequestBody_post_message) requestBody);
+            }
+            send.construct(responseBody);
+        } catch (JsonProcessingException | UnexpectedPayloadException e) {
             send.construct(new SendBody.ResponseBody.ResponseBody_error(UNEXPECTED_REQUEST));
         }
 

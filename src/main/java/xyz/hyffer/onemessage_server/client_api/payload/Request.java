@@ -1,4 +1,4 @@
-package xyz.hyffer.onemessage_server.client_api.data;
+package xyz.hyffer.onemessage_server.client_api.payload;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

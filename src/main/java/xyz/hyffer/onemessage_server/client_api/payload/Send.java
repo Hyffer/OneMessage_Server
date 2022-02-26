@@ -1,4 +1,4 @@
-package xyz.hyffer.onemessage_server.client_api.data;
+package xyz.hyffer.onemessage_server.client_api.payload;
 
 import lombok.Data;
 
