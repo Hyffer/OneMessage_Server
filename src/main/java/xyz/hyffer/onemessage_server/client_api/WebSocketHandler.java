@@ -20,7 +20,7 @@ import java.io.IOException;
 import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.ResponseBody.ResponseCode.UNEXPECTED_REQUEST;
 import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.ResponseBody.ResponseCode.UNEXPECTED_VALUE;
 
-@Service
+@Service("client_websocket_handler")
 public class WebSocketHandler extends TextWebSocketHandler {
 
     @Resource

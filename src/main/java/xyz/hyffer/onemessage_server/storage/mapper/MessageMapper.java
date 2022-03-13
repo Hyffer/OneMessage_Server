@@ -19,4 +19,8 @@ public interface MessageMapper {
      */
     List<Message> getMessages(int _CID, int first_MID, int last_MID);
 
+    void createUserTable(int _CID);
+
+    void createGroupTable(int _CID);
+
 }

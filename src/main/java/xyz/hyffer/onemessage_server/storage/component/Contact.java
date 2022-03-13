@@ -13,7 +13,16 @@ public class Contact {
     String name;
     String remark;
     int total;
-    boolean unread;
+    int unread;
     boolean pinned;
     Timestamp lastMsgTime;
+
+    public Contact() {}
+
+    public Contact(String type, long id, String name, String remark) {
+        this.type = type;
+        this.id = id;
+        this.name = name;
+        this.remark = remark;
+    }
 }

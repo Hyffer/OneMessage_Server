@@ -6,4 +6,25 @@
         <bind name="table" value="'message_' + _CID"/>
         select * from ${table} where _MID >= #{first_MID} and #{last_MID} >= _MID
     </select>
+
+    <update id="createUserTable">
+        <bind name="table" value="'message_' + _CID"/>
+        create table ${table} (
+            _MID int  unsigned auto_increment primary key,
+            time      timestamp not null,
+            direction enum('In', 'Out') not null
+        );
+    </update>
+
+    <update id="createGroupTable">
+        <bind name="table" value="'message_' + _CID"/>
+        create table ${table} (
+            _MID int unsigned auto_increment primary key,
+            time timestamp not null,
+            direction enum('In', 'Out') not null,
+            type enum('Normal', 'Anonymous') not null,
+            senderId bigint unsigned not null,
+            senderName nvarchar(30) not null
+        );
+    </update>
 </mapper>

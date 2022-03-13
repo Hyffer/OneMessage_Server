@@ -20,4 +20,15 @@
     <select id="getContactTotal" resultType="int">
         select total from contact where _CID=#{_CID}
     </select>
+
+    <insert id="addContact" parameterType="Contact"
+            useGeneratedKeys="true" keyProperty="_CID">
+        insert into contact (type, id, name, remark) value
+            (#{type}, #{id}, #{name}, #{remark})
+    </insert>
+
+    <update id="updateContact" parameterType="Contact">
+        update contact set name=#{name}, remark=#{remark}
+        where _CID=#{_CID}
+    </update>
 </mapper>
