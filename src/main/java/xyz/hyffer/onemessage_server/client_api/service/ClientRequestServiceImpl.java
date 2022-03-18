@@ -43,10 +43,11 @@ public class ClientRequestServiceImpl implements ClientRequestService {
     @Override
     public SendBody.ResponseBody getMessages(RequestBody.RequestBody_get_messages requestBody) throws UnexpectedValueException {
         int _CID = requestBody.get_CID();
-        Integer total = contactMapper.getContactTotal(_CID);
-        if (total == null)
+        Contact contact = contactMapper.findContactByCID(_CID);
+        if (contact == null)
             throw new UnexpectedValueException();
 
+        int total = contact.getTotal();
         int last_MID = requestBody.getLastMsg_MID();
         if (last_MID == 0) last_MID = total;
         int first_MID = last_MID - requestBody.getNum() + 1;

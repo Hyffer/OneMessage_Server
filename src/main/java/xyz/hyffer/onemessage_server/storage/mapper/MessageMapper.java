@@ -23,4 +23,12 @@ public interface MessageMapper {
 
     void createGroupTable(int _CID);
 
+    /**
+     * Add a message in message record of given contact
+     * @param _CID id of the contact
+     * @param message message to be added
+     *                auto increment key `_MID` will be assigned
+     */
+    void addMessageRecord(int _CID, Message message);
+
 }

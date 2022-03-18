@@ -12,12 +12,9 @@ public interface ContactMapper {
 
     List<Contact> searchContacts(String key, int limit);
 
-    /**
-     * Get the total number of messages of a contact
-     * @param _CID id of the contact
-     * @return the total number, or null indicates an error
-     */
-    Integer getContactTotal(int _CID);
+    Contact findContactByCID(int _CID);
+
+    Contact findContactById(long id);
 
     /**
      * Add a new contact, with UNIQUE id and remark
@@ -33,5 +30,12 @@ public interface ContactMapper {
      * @return affected rows
      */
     Integer updateContact(Contact contact);
+
+    /**
+     * Update total, unread, pinned and lastMsgTime
+     * @param contact contact to be updated
+     * @return affected rows
+     */
+    Integer updateContactStatus(Contact contact);
 
 }

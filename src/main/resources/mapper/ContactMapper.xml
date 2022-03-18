@@ -17,8 +17,12 @@
         </if>
     </select>
 
-    <select id="getContactTotal" resultType="int">
-        select total from contact where _CID=#{_CID}
+    <select id="findContactByCID" resultType="Contact">
+        select * from contact where _CID=#{_CID}
+    </select>
+
+    <select id="findContactById" resultType="Contact">
+        select * from contact where id=#{id}
     </select>
 
     <insert id="addContact" parameterType="Contact"
@@ -29,6 +33,11 @@
 
     <update id="updateContact" parameterType="Contact">
         update contact set name=#{name}, remark=#{remark}
+        where _CID=#{_CID}
+    </update>
+
+    <update id="updateContactStatus" parameterType="Contact">
+        update contact set total=#{total}, unread=#{unread}, pinned=#{pinned}, lastMsgTime=#{lastMsgTime}
         where _CID=#{_CID}
     </update>
 </mapper>

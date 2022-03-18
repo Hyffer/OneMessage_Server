@@ -3,6 +3,7 @@ package xyz.hyffer.onemessage_server.source_api.payload;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import xyz.hyffer.onemessage_server.source_api.payload.deserializer.EventDeserializer;
+import xyz.hyffer.onemessage_server.storage.component.Message;
 
 @Data
 @JsonDeserialize(using = EventDeserializer.class)
@@ -35,18 +36,23 @@ public class Event {
     }
 
 
+    @Data
     public static class MessageEvent extends Event {
         String message_type;
+        String sub_type;
+        long contact_id;
+        Message message;
 
-        @Data
-        public static class Private extends MessageEvent {
-
+        public MessageEvent(long time, long self_id, String post_type,
+                            String message_type, String sub_type, long contact_id) {
+            this.time = time;
+            this.self_id = self_id;
+            this.post_type = post_type;
+            this.message_type = message_type;
+            this.sub_type = sub_type;
+            this.contact_id = contact_id;
         }
 
-        @Data
-        public static class Group extends MessageEvent {
-
-        }
     }
 
 }

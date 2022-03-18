@@ -27,4 +27,20 @@
             senderName nvarchar(30) not null
         );
     </update>
+
+    <insert id="addMessageRecord"
+            useGeneratedKeys="true" keyProperty="message._MID">
+        <bind name="table" value="'message_' + _CID"/>
+        insert into ${table}
+        (time, direction
+        <if test="message.type != null">
+            , type, senderId, senderName
+        </if>
+        ) value
+        (#{message.time}, #{message.direction}
+        <if test="message.type != null">
+            , #{message.type}, #{message.senderId}, #{message.senderName}
+        </if>
+        )
+    </insert>
 </mapper>
