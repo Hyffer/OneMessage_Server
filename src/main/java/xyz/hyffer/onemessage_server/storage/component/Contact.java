@@ -1,5 +1,6 @@
 package xyz.hyffer.onemessage_server.storage.component;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -15,6 +16,7 @@ public class Contact {
     int total;
     int unread;
     boolean pinned;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     Timestamp lastMsgTime;
 
     public Contact() {}
