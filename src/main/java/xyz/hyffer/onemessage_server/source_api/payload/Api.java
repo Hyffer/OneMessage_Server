@@ -23,4 +23,12 @@ public class Api {
         }
     }
 
+    @Data
+    public static class Api_send_message extends Api {
+        public Api_send_message(ApiParam.ApiParam_send_message params) {
+            action = "send_msg";
+            this.params = params;
+        }
+    }
+
 }

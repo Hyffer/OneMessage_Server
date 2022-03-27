@@ -5,30 +5,15 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import xyz.hyffer.onemessage_server.source_api.payload.Event;
 import xyz.hyffer.onemessage_server.storage.component.Message;
 import xyz.hyffer.onemessage_server.storage.component.MessageSegment;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class EventDeserializer extends JsonDeserializer<Event> {
-
-    @Resource
-    ObjectMapper objectMapper;
-
-    @PostConstruct
-    public void init() {
-        // set custom MessageSegmentDeserializer
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(MessageSegment.class, new MessageSegmentDeserializer());
-        objectMapper.registerModule(module);
-    }
 
     @Override
     public Event deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, NotEventException {
@@ -89,7 +74,7 @@ public class EventDeserializer extends JsonDeserializer<Event> {
                 if (message != null) {
                     ArrayList<MessageSegment> segments = new ArrayList<>();
                     for (JsonNode n : node.get("message")) {
-                        MessageSegment segment = objectMapper.treeToValue(n, MessageSegment.class);
+                        MessageSegment segment = codec.treeToValue(n, MessageSegment.class);
                         segments.add(segment);
                     }
                     message.setSegments(segments);

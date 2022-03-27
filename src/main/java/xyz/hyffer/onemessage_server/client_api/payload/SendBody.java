@@ -79,6 +79,23 @@ public abstract class SendBody {
     public static class PushBody extends SendBody {
         String event;
         int _CID;
+
+        public enum PushEvent {
+            RECEIVE_MESSAGE,
+            STATUS_CHANGE
+        }
+
+        public PushBody(int _CID, PushEvent e) {
+            this._CID = _CID;
+            switch (e) {
+                case RECEIVE_MESSAGE:
+                    event = "ReceiveMsg";
+                    break;
+                case STATUS_CHANGE:
+                    event = "StatusChange";
+                    break;
+            }
+        }
     }
 
 }

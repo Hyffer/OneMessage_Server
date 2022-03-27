@@ -1,4 +1,4 @@
-package xyz.hyffer.onemessage_server.source_api.payload.deserializer;
+package xyz.hyffer.onemessage_server.storage.component.serialization;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,7 +11,7 @@ import xyz.hyffer.onemessage_server.storage.component.MessageSegmentContent;
 
 import java.io.IOException;
 
-public class MessageSegmentDeserializer extends JsonDeserializer<MessageSegment> {
+public class OneBotMessageSegmentDeserializer extends JsonDeserializer<MessageSegment> {
 
     @Override
     public MessageSegment deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
@@ -29,7 +29,9 @@ public class MessageSegmentDeserializer extends JsonDeserializer<MessageSegment>
                         new MessageSegmentContent.Image(node.get("data").get("url").asText())
                 );
             default:
-                throw new NotSurpportedSegmentException("");
+                return new MessageSegment(
+                        new MessageSegmentContent.Plaintext("[NotSupportSegment]")
+                );
         }
     }
 }

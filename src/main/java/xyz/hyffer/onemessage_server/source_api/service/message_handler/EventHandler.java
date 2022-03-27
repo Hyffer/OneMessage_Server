@@ -1,11 +1,14 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
+import xyz.hyffer.onemessage_server.client_api.service.ClientPushService;
 import xyz.hyffer.onemessage_server.source_api.payload.Api;
 import xyz.hyffer.onemessage_server.source_api.payload.Event;
 import xyz.hyffer.onemessage_server.source_api.payload.Response;
 import xyz.hyffer.onemessage_server.source_api.service.storage_maintainer.StaticStorage;
 import xyz.hyffer.onemessage_server.storage.component.Contact;
 import xyz.hyffer.onemessage_server.storage.component.Message;
+
+import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.PushBody.PushEvent.RECEIVE_MESSAGE;
 
 public class EventHandler {
 
@@ -33,6 +36,8 @@ public class EventHandler {
             StaticStorage.messageMapper.addMessageRecord(contact.get_CID(), message);
             StaticStorage.messageContentMapper.saveMessageContent(contact.get_CID(), message);
             StaticStorage.contactMapper.updateContactStatus(contact);
+
+            ClientPushService.pushStatus(contact.get_CID(), RECEIVE_MESSAGE);
             return null;
         }
         return null;

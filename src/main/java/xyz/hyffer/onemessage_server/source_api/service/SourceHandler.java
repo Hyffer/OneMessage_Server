@@ -73,6 +73,13 @@ public class SourceHandler {
         }
     }
 
+    public void callUserAPI(ReqRespPair pair) {
+        responseClass = pair.getResponseClass();
+        responseHandler = pair.getResponseHandler();
+        responseHandler.setSourceName(soucreNmae);
+        sendRequest(pair.getApi());
+    }
+
     private void sendRequest(Api api) {
         try {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(api)));

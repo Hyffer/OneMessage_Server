@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 @Service("source_websocket_handler")
 public class SWebSocketHandler extends TextWebSocketHandler {
 
-    @Resource
+    @Resource(name = "ObjectMapperOBMSS")
     private ObjectMapper objectMapper;
 
     @Override
