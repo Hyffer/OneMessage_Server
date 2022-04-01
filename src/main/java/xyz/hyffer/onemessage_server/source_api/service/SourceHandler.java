@@ -23,7 +23,7 @@ public class SourceHandler {
 
     private final ObjectMapper objectMapper;
 
-    private final String soucreNmae;
+    private final String sourceName;
     private final WebSocketSession session;
 
     private final EventHandler eventHandler;
@@ -33,7 +33,7 @@ public class SourceHandler {
 
     public SourceHandler(ObjectMapper objectMapper, String sourceName, WebSocketSession session) {
         this.objectMapper = objectMapper;
-        this.soucreNmae = sourceName;
+        this.sourceName = sourceName;
         this.session = session;
         this.eventHandler = new EventHandler(sourceName);
     }
@@ -64,7 +64,7 @@ public class SourceHandler {
             if (pair.getApi() != null) {
                 responseClass = pair.getResponseClass();
                 responseHandler = pair.getResponseHandler();
-                responseHandler.setSourceName(soucreNmae);
+                responseHandler.setSourceName(sourceName);
                 sendRequest(pair.getApi());
             } else {
                 responseClass = null;
@@ -76,7 +76,7 @@ public class SourceHandler {
     public void callUserAPI(ReqRespPair pair) {
         responseClass = pair.getResponseClass();
         responseHandler = pair.getResponseHandler();
-        responseHandler.setSourceName(soucreNmae);
+        responseHandler.setSourceName(sourceName);
         sendRequest(pair.getApi());
     }
 
