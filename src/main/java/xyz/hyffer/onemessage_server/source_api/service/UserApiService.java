@@ -27,7 +27,7 @@ public class UserApiService {
 
         ReqRespPair reqRespPair = new ReqRespPair(new Api.Api_send_message(apiParam),
                 Response.Response_send_message.class,
-                new ResponseHandler_send_message());
+                new ResponseHandler_send_message(contact, message));
 
         if (handler != null) {
             handler.callUserAPI(reqRespPair);

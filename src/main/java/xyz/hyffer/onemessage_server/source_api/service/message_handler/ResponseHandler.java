@@ -10,6 +10,6 @@ public abstract class ResponseHandler {
         this.sourceName = sourceName;
     }
 
-    public abstract ReqRespPair onResponse(Response response);
+    public abstract void onResponse(Response response);
 
 }

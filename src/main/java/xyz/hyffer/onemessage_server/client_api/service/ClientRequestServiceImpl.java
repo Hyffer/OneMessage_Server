@@ -9,10 +9,8 @@ import xyz.hyffer.onemessage_server.storage.component.Message;
 import xyz.hyffer.onemessage_server.storage.mapper.ContactMapper;
 import xyz.hyffer.onemessage_server.storage.mapper.MessageMapper;
 import xyz.hyffer.onemessage_server.storage.mongo.MessageContentInjector;
-import xyz.hyffer.onemessage_server.storage.mongo.MessageContentMapper;
 
 import javax.annotation.Resource;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -26,9 +24,6 @@ public class ClientRequestServiceImpl implements ClientRequestService {
 
     @Resource
     private MessageContentInjector messageContentInjector;
-
-    @Resource
-    private MessageContentMapper messageContentMapper;
 
     @Override
     public SendBody.ResponseBody getContacts(RequestBody.RequestBody_get_contacts requestBody) throws UnexpectedValueException {
@@ -78,7 +73,6 @@ public class ClientRequestServiceImpl implements ClientRequestService {
             throw new UnexpectedValueException();
 
         Message message = requestBody.getMessage();
-        message.setTime(new Timestamp(System.currentTimeMillis()));
         message.setDirection("Out");
         if (contact.getType().equals("Group")) {
             message.setType("Normal");
@@ -86,15 +80,7 @@ public class ClientRequestServiceImpl implements ClientRequestService {
             message.setSenderName(contact.getName());
         }
 
-        contact.setTotal(contact.getTotal() + 1);
-        contact.setLastMsgTime(message.getTime());
-
-        messageMapper.addMessageRecord(_CID, message);
-        messageContentMapper.saveMessageContent(_CID, message);
-        contactMapper.updateContactStatus(contact);
-
         UserApiService.postMessage("QQ", contact, message);
-        ClientPushService.pushStatus(contact.get_CID(), SendBody.PushBody.PushEvent.RECEIVE_MESSAGE);
 
         return new SendBody.ResponseBody.ResponseBody_no_content();
     }

@@ -8,6 +8,9 @@ import xyz.hyffer.onemessage_server.source_api.service.storage_maintainer.Static
 import xyz.hyffer.onemessage_server.storage.component.Contact;
 import xyz.hyffer.onemessage_server.storage.component.Message;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.PushBody.PushEvent.RECEIVE_MESSAGE;
 
 public class EventHandler {
@@ -18,12 +21,18 @@ public class EventHandler {
         this.sourceName = sourceName;
     }
 
-    public ReqRespPair onEvent(Event event) {
+    public List<ReqRespPair> onEvent(Event event) {
         if (event instanceof Event.MetaEvent.LifeCycle) {
-            return new ReqRespPair(
-                    new Api.Api_get_friend_list(),
-                    Response.Response_get_contact_list.class,
-                    new ResponseHandler_get_friend_list());
+            return Arrays.asList(
+                    new ReqRespPair(
+                        new Api.Api_get_friend_list(),
+                        Response.Response_get_contact_list.class,
+                        new ResponseHandler_get_friend_list()),
+                    new ReqRespPair(
+                        new Api.Api_get_group_list(),
+                        Response.Response_get_contact_list.class,
+                        new ResponseHandler_get_group_list())
+            );
         }
         else if (event instanceof Event.MessageEvent) {
             long contact_id = ((Event.MessageEvent) event).getContact_id();

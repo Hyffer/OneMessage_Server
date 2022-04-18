@@ -1,14 +1,35 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
+import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.service.ClientPushService;
 import xyz.hyffer.onemessage_server.source_api.payload.Response;
+import xyz.hyffer.onemessage_server.storage.component.Contact;
+import xyz.hyffer.onemessage_server.storage.component.Message;
+
+import java.sql.Timestamp;
+
+import static xyz.hyffer.onemessage_server.source_api.service.storage_maintainer.StaticStorage.*;
 
 public class ResponseHandler_send_message extends ResponseHandler {
 
+    private final Contact contact;
+    private final Message message;
+
+    public ResponseHandler_send_message(Contact contact, Message message) {
+        this.contact = contact;
+        this.message = message;
+    }
+
     @Override
-    public ReqRespPair onResponse(Response response) {
-        // TODO:
-        //  add request queue in SourceHandler,
-        //  move write storage and push status operation in `ClientRequestService.postMessage()` here
-        return new ReqRespPair(null, null, null);
+    public void onResponse(Response response) {
+        message.setTime(new Timestamp(System.currentTimeMillis()));
+        contact.setTotal(contact.getTotal() + 1);
+        contact.setLastMsgTime(message.getTime());
+
+        messageMapper.addMessageRecord(contact.get_CID(), message);
+        messageContentMapper.saveMessageContent(contact.get_CID(), message);
+        contactMapper.updateContactStatus(contact);
+
+        ClientPushService.pushStatus(contact.get_CID(), SendBody.PushBody.PushEvent.RECEIVE_MESSAGE);
     }
 }
