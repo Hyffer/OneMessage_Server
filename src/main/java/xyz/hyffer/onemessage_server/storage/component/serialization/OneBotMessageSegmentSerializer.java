@@ -21,8 +21,13 @@ public class OneBotMessageSegmentSerializer extends JsonSerializer<MessageSegmen
                 jsonGenerator.writeObjectField("text", ((MessageSegmentContent.Plaintext) segment.getContent()).getText());
                 jsonGenerator.writeEndObject();
                 break;
-//            case "image":
-//                break;
+            case "image":
+                jsonGenerator.writeObjectField("type", "image");
+                jsonGenerator.writeFieldName("data");
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeObjectField("file", ((MessageSegmentContent.Image) segment.getContent()).getUrl());
+                jsonGenerator.writeEndObject();
+                break;
             default:
                 jsonGenerator.writeObjectField("type", "text");
                 jsonGenerator.writeFieldName("data");

@@ -24,10 +24,10 @@ public class MessageSegmentDeserializer extends JsonDeserializer<MessageSegment>
                 return new MessageSegment(
                         new MessageSegmentContent.Plaintext(node.get("content").get("text").asText())
                 );
-//                case "image":
-//                    segments.add(new MessageSegment(
-//                            new MessageSegmentContent.Image(n.get("content").get("url").asText())
-//                    ));
+            case "image":
+                return new MessageSegment(
+                        new MessageSegmentContent.Image(node.get("content").get("url").asText())
+                );
             default:
                 return new MessageSegment(
                         new MessageSegmentContent.Plaintext("[NotSupportSegment]")
