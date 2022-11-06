@@ -24,7 +24,7 @@
             direction enum('In', 'Out') not null,
             type enum('Normal', 'Anonymous') not null,
             senderId bigint unsigned not null,
-            senderName nvarchar(30) not null
+            senderName varchar(100) not null
         );
     </update>
 

@@ -53,8 +53,27 @@ senderName<sup>(2)</sup>|
 
 ### MariaDB
 
-建议将 character_set_client, character_set_connection, character_set_database,
-character_set_results, character_set_server 全部设置为 gbk 字符集，以避免处理中文字符时可能遇到的问题。
+#### 设置字符集
+
+将默认字符集设置为 utf8mb4:
+```
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+init_connect='SET NAMES utf8mb4'
+
+[server]
+character-set-server=utf8mb4
+```
+
+或者在所有数据表创建语句中出现 varchar 的地方指定 CHARACTER SET utf8mb4
 
 #### 创建数据库与用户
 
@@ -76,8 +95,8 @@ create table contact(
     _CID int unsigned auto_increment primary key,
     type enum('Friend', 'Group', 'Member', 'Stranger') not null,
     id bigint unsigned not null unique,
-    name nvarchar(30) not null,
-    remark nvarchar(30) not null unique,
+    name varchar(100) not null,
+    remark varchar(100) not null unique,
     total int unsigned not null default 0,
     unread int unsigned not null default 0,
     pinned boolean not null default false,
@@ -125,7 +144,7 @@ create table message_2(
     direction enum('In', 'Out') not null,
     type enum('Normal', 'Anonymous') not null,
     senderId bigint unsigned not null,
-    senderName nvarchar(30) not null
+    senderName varchar(100) not null
 );
 ```
 

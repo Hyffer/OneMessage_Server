@@ -1,12 +1,14 @@
 package xyz.hyffer.onemessage_server.source_api;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import javax.annotation.Resource;
 
@@ -26,5 +28,15 @@ public class SWebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(sWebSocketHandler, "source")
                 .addInterceptors(sHandshakeInterceptor);
+    }
+
+    @Bean
+    public ServletServerContainerFactoryBean createWebSocketContainer() {
+        // support for long message, e.g. friend list
+        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(512000);
+        container.setMaxBinaryMessageBufferSize(512000);
+        container.setMaxSessionIdleTimeout(15 * 60000L);
+        return container;
     }
 }

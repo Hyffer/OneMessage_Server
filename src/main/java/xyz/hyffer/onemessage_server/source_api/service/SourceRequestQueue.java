@@ -71,6 +71,7 @@ public class SourceRequestQueue {
      */
     protected void sendHeadRequest() {
         try {
+            System.out.println(objectMapper.writeValueAsString(REQUEST_QUEUE.get(0).getApi()));
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(REQUEST_QUEUE.get(0).getApi())));
         } catch (IOException e) {
             e.printStackTrace();
