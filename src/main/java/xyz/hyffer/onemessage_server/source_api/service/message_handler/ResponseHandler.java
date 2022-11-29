@@ -4,10 +4,10 @@ import xyz.hyffer.onemessage_server.source_api.payload.Response;
 
 public abstract class ResponseHandler {
 
-    protected String sourceName;
+    protected int _SID;
 
-    public void setSourceName(String sourceName) {
-        this.sourceName = sourceName;
+    public void set_SID(int _SID) {
+        this._SID = _SID;
     }
 
     public abstract void onResponse(Response response);

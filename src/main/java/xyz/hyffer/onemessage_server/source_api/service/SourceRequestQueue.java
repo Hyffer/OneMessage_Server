@@ -2,52 +2,42 @@ package xyz.hyffer.onemessage_server.source_api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 import xyz.hyffer.onemessage_server.source_api.payload.Response;
 import xyz.hyffer.onemessage_server.source_api.service.message_handler.ReqRespPair;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SourceRequestQueue {
+public abstract class SourceRequestQueue {
 
     private final ObjectMapper objectMapper;
 
-    private final String sourceName;
-    private final WebSocketSession session;
+    private final int _SID;
 
     private final ArrayList<ReqRespPair> REQUEST_QUEUE;
     private boolean waitingResponse;
 
-    public SourceRequestQueue(ObjectMapper objectMapper, String sourceName, WebSocketSession session) {
+    public SourceRequestQueue(ObjectMapper objectMapper, int _SID) {
         this.objectMapper = objectMapper;
-        this.sourceName = sourceName;
-        this.session = session;
+        this._SID = _SID;
         REQUEST_QUEUE = new ArrayList<>();
         waitingResponse = false;
     }
 
     public void addRequest(ReqRespPair pair) {
-        pair.getResponseHandler().setSourceName(sourceName);
+        pair.getResponseHandler().set_SID(_SID);
         REQUEST_QUEUE.add(pair);
-        if (!waitingResponse) {
-            waitingResponse = true;
-            sendHeadRequest();
-        }
+        trySendHeadRequest();
     }
 
     public void addRequests(List<ReqRespPair> pairs) {
-        for (ReqRespPair p : pairs) p.getResponseHandler().setSourceName(sourceName);
+        for (ReqRespPair p : pairs) p.getResponseHandler().set_SID(_SID);
         REQUEST_QUEUE.addAll(pairs);
-        if (!waitingResponse) {
-            waitingResponse = true;
-            sendHeadRequest();
-        }
+        trySendHeadRequest();
     }
 
     public void onResponse(String payload) {
+        waitingResponse = false;
         if (!REQUEST_QUEUE.isEmpty()) {
             ReqRespPair expectedResponse = REQUEST_QUEUE.remove(0);
             try {
@@ -57,24 +47,25 @@ public class SourceRequestQueue {
                 e.printStackTrace();
             }
 
-            if (!REQUEST_QUEUE.isEmpty()) {
-                sendHeadRequest();
-            } else {
-                waitingResponse = false;
-            }
+            trySendHeadRequest();
         }
     }
 
     /**
-     * Send the first request of request queue
-     * need request queue not empty
+     * Send the first request of request queue,
+     * if request queue not empty and
+     * if not waiting for a response
      */
-    protected void sendHeadRequest() {
-        try {
-            System.out.println(objectMapper.writeValueAsString(REQUEST_QUEUE.get(0).getApi()));
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(REQUEST_QUEUE.get(0).getApi())));
-        } catch (IOException e) {
-            e.printStackTrace();
+    protected void trySendHeadRequest() {
+        if (!REQUEST_QUEUE.isEmpty() && !waitingResponse) {
+            try {
+                sendRequest(objectMapper.writeValueAsString(REQUEST_QUEUE.get(0).getApi()));
+                waitingResponse = true; // TODO: Mutex
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    protected abstract void sendRequest(String s);
 }

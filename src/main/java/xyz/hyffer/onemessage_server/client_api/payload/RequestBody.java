@@ -28,6 +28,7 @@ public abstract class RequestBody {
     @Data
     public static class RequestBody_post_message extends RequestBody {
         int _CID;
+        int _SID;
         Message message;
     }
 

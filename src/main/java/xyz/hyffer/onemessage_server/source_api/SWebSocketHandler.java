@@ -9,6 +9,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import xyz.hyffer.onemessage_server.source_api.service.SourceHandler;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service("source_websocket_handler")
 public class SWebSocketHandler extends TextWebSocketHandler {
@@ -18,29 +19,28 @@ public class SWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        String name = getName(session);
-        SourceHandler sourceHandler = new SourceHandler(objectMapper, name, session);
-        SourceHandlerManager.put(name, sourceHandler);
+        int _SID = get_SID(session);
+        SourceHandler sourceHandler = new SourceHandler(objectMapper, _SID, session);
+        SourceHandlerManager.put(_SID, sourceHandler);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        String name = getName(session);
+        int _SID = get_SID(session);
         String payload = message.getPayload();
         System.out.println(payload);
-        SourceHandlerManager.get(name).onReceiveMessage(payload);
+        SourceHandlerManager.get(_SID).onReceiveMessage(payload);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String name = getName(session);
-        SourceHandlerManager.remove(name);
+        int _SID = get_SID(session);
+        SourceHandlerManager.remove(_SID);
     }
 
-    private static String getName(WebSocketSession session) {
-        // get("authorization") will return a nonNull object
-        // null was caught and blocked during handshake process
-        String authorization = session.getHandshakeHeaders().get("authorization").get(0);
-        return authorization.substring(authorization.lastIndexOf(' ') + 1);
+    private static int get_SID(WebSocketSession session) {
+        List<String> strings = session.getHandshakeHeaders().get("_SID");
+        assert (strings != null && strings.size() > 0);
+        return Integer.parseInt(strings.get(0));
     }
 }

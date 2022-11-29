@@ -8,7 +8,7 @@ public class ResponseHandler_get_friend_list extends ResponseHandler {
     @Override
     public void onResponse(Response response) {
         if (response.getRetcode() == 0) {
-            ContactMaintainer.migrateContacts(sourceName, ((Response.Response_get_contact_list) response).getData());
+            ContactMaintainer.migrateContacts(_SID, ((Response.Response_get_contact_list) response).getData());
         }
     }
 }

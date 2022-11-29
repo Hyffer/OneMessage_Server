@@ -12,6 +12,8 @@ import java.util.ArrayList;
 public class Message {
     @Id // used for mongodb query, mapping primary key '_id' to attribute '_MID'
     int _MID;
+    @Transient
+    int _SID;
     @Transient  // make fields transparent to mongodb
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     Timestamp time;

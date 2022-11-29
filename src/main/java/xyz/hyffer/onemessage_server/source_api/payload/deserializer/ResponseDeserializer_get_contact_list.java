@@ -42,7 +42,10 @@ public class ResponseDeserializer_get_contact_list extends JsonDeserializer<Resp
                 type = "Friend";
                 id = element.get("user_id").asLong();
                 name = element.get("nickname").asText();
-                remark = element.get("remark").asText();
+                if (element.has("remark"))
+                    remark = element.get("remark").asText();
+                else
+                    remark = name;
             } else {
                 type = "Group";
                 id = element.get("group_id").asLong();

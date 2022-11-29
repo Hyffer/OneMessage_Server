@@ -15,10 +15,10 @@ import static xyz.hyffer.onemessage_server.client_api.payload.SendBody.PushBody.
 
 public class EventHandler {
 
-    private final String sourceName;
+    private final int _SID;
 
-    public EventHandler(String sourceName) {
-        this.sourceName = sourceName;
+    public EventHandler(int _SID) {
+        this._SID = _SID;
     }
 
     public List<ReqRespPair> onEvent(Event event) {
@@ -37,7 +37,8 @@ public class EventHandler {
         else if (event instanceof Event.MessageEvent) {
             long contact_id = ((Event.MessageEvent) event).getContact_id();
             Message message = ((Event.MessageEvent) event).getMessage();
-            Contact contact = StaticStorage.contactMapper.findContactById(contact_id);
+            message.set_SID(_SID);
+            Contact contact = StaticStorage.contactMapper.findContactById(_SID, contact_id);
             contact.setTotal(contact.getTotal() + 1);
             contact.setUnread(contact.getUnread() + 1);
             contact.setLastMsgTime(message.getTime());

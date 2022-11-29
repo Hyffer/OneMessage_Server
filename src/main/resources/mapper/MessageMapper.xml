@@ -11,6 +11,7 @@
         <bind name="table" value="'message_' + _CID"/>
         create table ${table} (
             _MID int  unsigned auto_increment primary key,
+            _SID int unsigned not null,
             time      timestamp not null,
             direction enum('In', 'Out') not null
         );
@@ -20,6 +21,7 @@
         <bind name="table" value="'message_' + _CID"/>
         create table ${table} (
             _MID int unsigned auto_increment primary key,
+            _SID int unsigned not null,
             time timestamp not null,
             direction enum('In', 'Out') not null,
             type enum('Normal', 'Anonymous') not null,
@@ -32,12 +34,12 @@
             useGeneratedKeys="true" keyProperty="message._MID">
         <bind name="table" value="'message_' + _CID"/>
         insert into ${table}
-        (time, direction
+        (_SID, time, direction
         <if test="message.type != null">
             , type, senderId, senderName
         </if>
         ) value
-        (#{message.time}, #{message.direction}
+        (#{message._SID}, #{message.time}, #{message.direction}
         <if test="message.type != null">
             , #{message.type}, #{message.senderId}, #{message.senderName}
         </if>

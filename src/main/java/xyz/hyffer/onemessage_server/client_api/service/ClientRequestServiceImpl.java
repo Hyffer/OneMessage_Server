@@ -68,19 +68,21 @@ public class ClientRequestServiceImpl implements ClientRequestService {
     @Override
     public SendBody.ResponseBody postMessage(RequestBody.RequestBody_post_message requestBody) throws UnexpectedValueException {
         int _CID = requestBody.get_CID();
+        int _SID = requestBody.get_SID();
         Contact contact = contactMapper.findContactByCID(_CID);
         if (contact == null)
             throw new UnexpectedValueException();
 
         Message message = requestBody.getMessage();
+        message.set_SID(_SID);
         message.setDirection("Out");
         if (contact.getType().equals("Group")) {
             message.setType("Normal");
-            message.setSenderId(contact.getId());
-            message.setSenderName(contact.getName());
+            message.setSenderId(contact.getContactInfo(_SID).getId());
+            message.setSenderName(contact.getContactInfo(_SID).getName());
         }
 
-        UserApiService.postMessage("QQ", contact, message);
+        UserApiService.postMessage(_SID, contact, message);
 
         return new SendBody.ResponseBody.ResponseBody_no_content();
     }

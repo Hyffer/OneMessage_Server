@@ -13,9 +13,7 @@
 ---|---|---
 _CID | 正整数 | 联系人编号
 type | Friend / Group / Member / Stranger | 好友 / 群组 / 群成员<sup>(1)</sup> / 陌生人
-id | | QQ号 / 群号
 ~~avatar~~|-|-
-name| | 昵称 / 群名
 remark| | 备注
 total|
 unread|
@@ -25,6 +23,15 @@ lastMsgTime|
 (1): **群成员** 表示有共同的群组，而又不是好友的人。
 一个群成员可能存在于多个群组中，但在联系人数据表中只有一条记录。
 
+每一个联系人对应于多个消息源的联系方式
+
+字段 | 类型 | 注释
+---|---|---
+_CID | 正整数 | 联系人编号
+_SID | 正整数 | 消息源编号
+id | | 在该消息源的帐号
+name| | 昵称 / 群名
+
 ## 消息记录
 
 每一张消息记录数据表对应于一个联系人
@@ -32,6 +39,7 @@ lastMsgTime|
 字段 | 类型 | 注释
 ---|---|---
 _MID| 正整数 | 消息编号（不同联系人的消息编号可以相同）
+_SID| 正整数 | 消息源编号
 time|
 messageId| | ?
 internalId| | ?（关于撤回和引用回复）<sup>*(1)*</sup>
@@ -87,20 +95,31 @@ flush privileges;
 
 #### 创建数据表
 
-联系人数据表：
+消息源表、联系人数据表：
 ```mysql
 use onemessage;
+
+create table source(
+    _SID int unsigned auto_increment primary key,
+    name varchar(20) not null unique
+);
 
 create table contact(
     _CID int unsigned auto_increment primary key,
     type enum('Friend', 'Group', 'Member', 'Stranger') not null,
-    id bigint unsigned not null unique,
-    name varchar(100) not null,
     remark varchar(100) not null unique,
     total int unsigned not null default 0,
     unread int unsigned not null default 0,
     pinned boolean not null default false,
     lastMsgTime timestamp null
+);
+
+create table contact_info(
+    _CID int unsigned,
+    _SID int unsigned,
+    id bigint unsigned not null,
+    name varchar(100) not null,
+    index(_CID)
 );
 ```
 
