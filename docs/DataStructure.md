@@ -117,7 +117,7 @@ create table contact(
 create table contact_info(
     _CID int unsigned,
     _SID int unsigned,
-    id bigint unsigned not null,
+    id varchar(100) not null,
     name varchar(100) not null,
     index(_CID)
 );

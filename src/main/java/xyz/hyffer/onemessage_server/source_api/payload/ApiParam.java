@@ -15,8 +15,8 @@ public abstract class ApiParam {
     @Data
     public static class ApiParam_send_message extends ApiParam {
         String message_type;
-        long user_id;
-        long group_id;
+        String user_id;
+        String group_id;
         List<MessageSegment> message;
         boolean auto_escape;
 

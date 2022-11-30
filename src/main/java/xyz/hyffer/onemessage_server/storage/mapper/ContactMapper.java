@@ -15,7 +15,7 @@ public interface ContactMapper {
 
     Contact findContactByCID(int _CID);
 
-    Contact findContactById(int _SID, long id);
+    Contact findContactById(int _SID, String id);
 
     ContactInfo findContactInfoByCID(int _CID);
 

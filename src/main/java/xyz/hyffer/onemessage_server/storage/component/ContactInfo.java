@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class ContactInfo {
     int _SID;
-    long id;
+    String id;
     String name;
 
     public ContactInfo() {}
 
-    public ContactInfo(long id, String name) {
+    public ContactInfo(String id, String name) {
         this.id = id;
         this.name = name;
     }

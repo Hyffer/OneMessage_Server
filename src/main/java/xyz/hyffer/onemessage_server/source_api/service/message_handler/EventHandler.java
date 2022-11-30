@@ -35,7 +35,7 @@ public class EventHandler {
             );
         }
         else if (event instanceof Event.MessageEvent) {
-            long contact_id = ((Event.MessageEvent) event).getContact_id();
+            String contact_id = ((Event.MessageEvent) event).getContact_id();
             Message message = ((Event.MessageEvent) event).getMessage();
             message.set_SID(_SID);
             Contact contact = StaticStorage.contactMapper.findContactById(_SID, contact_id);

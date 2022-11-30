@@ -91,6 +91,6 @@ class ContactComparator implements Comparator<Contact> {
 
     @Override
     public int compare(Contact o1, Contact o2) {
-        return Long.compare(o1.getContactInfos().get(index).getId(), o2.getContactInfos().get(index).getId());
+        return o1.getContactInfos().get(index).getId().compareTo(o2.getContactInfos().get(index).getId());
     }
 }

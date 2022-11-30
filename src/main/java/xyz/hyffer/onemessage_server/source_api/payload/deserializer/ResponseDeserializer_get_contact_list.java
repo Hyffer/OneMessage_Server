@@ -34,13 +34,15 @@ public class ResponseDeserializer_get_contact_list extends JsonDeserializer<Resp
         for (int i = 0; i < length; i++) {
             JsonNode element = data.get(i);
             String type;
-            long id;
+            String id;
             String name;
             String remark;
             boolean isUser = element.has("user_id");
             if (isUser) {
                 type = "Friend";
-                id = element.get("user_id").asLong();
+                id = element.get("user_id").asText();
+                if (!element.has("nickname"))
+                    continue;
                 name = element.get("nickname").asText();
                 if (element.has("remark"))
                     remark = element.get("remark").asText();
@@ -48,7 +50,7 @@ public class ResponseDeserializer_get_contact_list extends JsonDeserializer<Resp
                     remark = name;
             } else {
                 type = "Group";
-                id = element.get("group_id").asLong();
+                id = element.get("group_id").asText();
                 name = element.get("group_name").asText();
                 remark = name;
             }

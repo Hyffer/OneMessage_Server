@@ -23,7 +23,7 @@ public class Contact {
 
     public Contact() {}
 
-    public Contact(String type, long id, String name, String remark) {
+    public Contact(String type, String id, String name, String remark) {
         this.type = type;
         this.remark = remark;
         this.contactInfos.add(new ContactInfo(id, name));

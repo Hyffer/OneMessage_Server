@@ -9,7 +9,7 @@ import xyz.hyffer.onemessage_server.storage.component.Message;
 @JsonDeserialize(using = EventDeserializer.class)
 public class Event {
     long time;
-    long self_id;
+    String self_id;
     String post_type;
 
     public static class MetaEvent extends Event {
@@ -19,7 +19,7 @@ public class Event {
         public static class LifeCycle extends MetaEvent {
             String sub_type;
 
-            public LifeCycle(long time, long self_id, String post_type, String meta_event_type, String sub_type) {
+            public LifeCycle(long time, String self_id, String post_type, String meta_event_type, String sub_type) {
                 this.time = time;
                 this.self_id = self_id;
                 this.post_type = post_type;
@@ -40,11 +40,11 @@ public class Event {
     public static class MessageEvent extends Event {
         String message_type;
         String sub_type;
-        long contact_id;
+        String contact_id;
         Message message;
 
-        public MessageEvent(long time, long self_id, String post_type,
-                            String message_type, String sub_type, long contact_id) {
+        public MessageEvent(long time, String self_id, String post_type,
+                            String message_type, String sub_type, String contact_id) {
             this.time = time;
             this.self_id = self_id;
             this.post_type = post_type;

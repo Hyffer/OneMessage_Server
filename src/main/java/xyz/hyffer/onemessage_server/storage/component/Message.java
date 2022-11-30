@@ -25,7 +25,7 @@ public class Message {
     @Transient
     String type;
     @Transient
-    long senderId;
+    String senderId;
     @Transient
     String senderName;
     ArrayList<MessageSegment> segments;
@@ -37,7 +37,7 @@ public class Message {
         this.direction = direction;
     }
 
-    public Message(Timestamp time, String direction, String type, long senderId, String senderName) {
+    public Message(Timestamp time, String direction, String type, String senderId, String senderName) {
         this.time = time;
         this.direction = direction;
         this.type = type;

@@ -22,7 +22,7 @@ public class EventDeserializer extends JsonDeserializer<Event> {
 
         if (node.get("time") == null || node.get("self_id") == null || node.get("post_type") == null) throw new NotEventException("");
         final long time = node.get("time").asLong();
-        final long self_id = node.get("self_id").asLong();
+        final String self_id = node.get("self_id").asText();
         final String post_type = node.get("post_type").asText();
 
         switch (post_type) {
@@ -42,32 +42,32 @@ public class EventDeserializer extends JsonDeserializer<Event> {
             case "message":
                 final String message_type = node.get("message_type").asText();
                 final String sub_type = node.get("sub_type").asText();
-                long contact_id = 0;
+                String contact_id = null;
                 Message message = null;
                 switch (message_type) {
                     case "private":
                         if (!sub_type.equals("friend")) {
                             break;
                         }
-                        contact_id = node.get("user_id").asLong();
+                        contact_id = node.get("user_id").asText();
                         message = new Message(new Timestamp(time * 1000), "In");
                         break;
                     case "group":
                         String type;
-                        long senderId;
+                        String senderId;
                         String senderName;
                         if (sub_type.equals("normal")) {
                             type = "Normal";
-                            senderId = node.get("sender").get("user_id").asLong();
+                            senderId = node.get("sender").get("user_id").asText();
                             senderName = node.get("sender").get("card").asText();
                         } else if (sub_type.equals("anonymous")) {
                             type = "Anonymous";
-                            senderId = node.get("anonymous").get("id").asLong();
+                            senderId = node.get("anonymous").get("id").asText();
                             senderName = node.get("anonymous").get("name").asText();
                         } else {
                             break;
                         }
-                        contact_id = node.get("group_id").asLong();
+                        contact_id = node.get("group_id").asText();
                         message = new Message(new Timestamp(time * 1000), "In", type, senderId, senderName);
                         break;
                 }
