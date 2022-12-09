@@ -37,12 +37,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
-        System.out.println(payload);
+        System.out.println("[Client] Receive:\t" + payload);
         Request request;
         Send send = new Send();
         try {
             request = objectMapper.readValue(payload, Request.class);
-            System.out.println(request);
             RequestBody requestBody = request.getBody();
             SendBody.ResponseBody responseBody;
             if (requestBody instanceof RequestBody.RequestBody_get_contacts) {

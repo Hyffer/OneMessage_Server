@@ -36,7 +36,7 @@ public class SourceHandler {
             @Override
             protected void sendRequest(String s) {
                 try {
-                    System.out.println(s);
+                    System.out.println("[Source] Send to #" + this._SID + ":\t" + s);
                     session.sendMessage(new TextMessage(s));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -46,6 +46,7 @@ public class SourceHandler {
     }
 
     public void onReceiveMessage(String payload) {
+        System.out.println("[Source] Receive from #" + this._SID + ":\t" + payload);
         try {
             // receive event
             Event event = objectMapper.readValue(payload, Event.class);

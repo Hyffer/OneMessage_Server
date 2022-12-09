@@ -12,7 +12,7 @@ public abstract class SourceRequestQueue {
 
     private final ObjectMapper objectMapper;
 
-    private final int _SID;
+    protected final int _SID;
 
     private final ArrayList<ReqRespPair> REQUEST_QUEUE;
     private boolean waitingResponse;

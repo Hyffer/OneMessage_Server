@@ -28,7 +28,6 @@ public class SWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         int _SID = get_SID(session);
         String payload = message.getPayload();
-        System.out.println(payload);
         SourceHandlerManager.get(_SID).onReceiveMessage(payload);
     }
 
