@@ -31,7 +31,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        WebSocketSessionManager.add(session);
+        WebSocketSessionManager.put(session.getId(), session);
     }
 
     @Override
@@ -61,7 +61,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
 
         try {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(send)));
+            WebSocketSessionManager.get(session.getId())
+                    .sendMessage(new TextMessage(objectMapper.writeValueAsString(send)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,7 +70,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        WebSocketSessionManager.remove(session);
+        WebSocketSessionManager.remove(session.getId());
     }
 
 }

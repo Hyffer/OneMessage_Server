@@ -107,7 +107,7 @@ create table source(
 create table contact(
     _CID int unsigned auto_increment primary key,
     type enum('Friend', 'Group', 'Member', 'Stranger') not null,
-    remark varchar(100) not null unique,
+    remark varchar(100) not null,
     total int unsigned not null default 0,
     unread int unsigned not null default 0,
     pinned boolean not null default false,
@@ -122,6 +122,8 @@ create table contact_info(
     index(_CID)
 );
 ```
+
+[//]: # (TODO: deal with groups with the same name)
 
 消息记录数据表会在消息源接入时自动维护，不需要手动创建
 
