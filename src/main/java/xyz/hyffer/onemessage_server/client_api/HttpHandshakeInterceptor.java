@@ -17,7 +17,7 @@ public class HttpHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) {
         HttpSession session = ((ServletServerHttpRequest) request).getServletRequest().getSession();
-        if (session != null && session.getAttribute("hasLogin") != null)
+        if (session != null && session.getAttribute("Auth") != null)
             return true;
         response.setStatusCode(HttpStatus.FORBIDDEN);
         return false;

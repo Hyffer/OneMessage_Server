@@ -10,7 +10,7 @@
 
 #### 请求
 
-Request URL: `/login`
+Request URL: `/auth`
 
 Request Method: `POST`
 

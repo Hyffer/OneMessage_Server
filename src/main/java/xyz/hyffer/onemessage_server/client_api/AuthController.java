@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @EnableAutoConfiguration
-public class LoginController {
+public class AuthController {
 
     @Value("${auth.username}")
     private String USERNAME;
@@ -23,20 +23,20 @@ public class LoginController {
     @Value("${allowed-origins}")
     private String[] ALLOW_ORIGINS;
 
-    @RequestMapping(value = "/login", method = {RequestMethod.POST})
-    public String login(HttpServletRequest request, HttpServletResponse response,
+    @RequestMapping(value = "/auth", method = {RequestMethod.POST})
+    public String auth(HttpServletRequest request, HttpServletResponse response,
                         @RequestParam(required = false) String username,
                         @RequestParam(required = false) String password) {
-        if (request.getSession().getAttribute("hasLogin") != null) {
-            return "Has Already Login.";
+        if (request.getSession().getAttribute("Auth") != null) {
+            return null;
         }
         if (username != null && password != null &&
                 username.equals(USERNAME) && password.equals(PASSWORD)) {
-            request.getSession().setAttribute("hasLogin", true);
-            return "Login Successfully.";
+            request.getSession().setAttribute("Auth", true);
+            return null;
         }
         response.setStatus(403);
-        return "Login Failed.";
+        return "Authenticate failed.";
     }
 
     @Bean
@@ -44,7 +44,7 @@ public class LoginController {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/login")
+                registry.addMapping("/auth")
                         .allowedOriginPatterns(ALLOW_ORIGINS)
                         .allowCredentials(true);
             }
