@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/omtest
+    username: omtest
+    password: omtest
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+      springframework:
+        transaction:
+          interceptor: TRACE
+        test:
+          context:
+            transaction: DEBUG
+
+om:
+  allowed-origins: "*"  # Allowed origins for browser client
+  auth:
+    username: omtest
+    password: omtest

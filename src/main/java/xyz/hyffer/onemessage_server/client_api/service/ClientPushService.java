@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import xyz.hyffer.onemessage_server.client_api.WebSocketSessionManager;
-import xyz.hyffer.onemessage_server.client_api.payload.Send;
-import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.WebSocketSessionManager;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.Send;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.SendBody;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
 import java.io.IOException;
 
 @Service

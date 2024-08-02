@@ -2,7 +2,7 @@ package xyz.hyffer.onemessage_server.source_api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import xyz.hyffer.onemessage_server.source_api.payload.Response;
+import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Response;
 import xyz.hyffer.onemessage_server.source_api.service.message_handler.ReqRespPair;
 
 import java.util.ArrayList;

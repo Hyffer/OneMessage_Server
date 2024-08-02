@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/om
+    username: om
+    password: database_password
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+om:
+  allowed-origins: "*"  # Allowed origins for browser client
+  auth:
+    username: webapp_username
+    password: webapp_password

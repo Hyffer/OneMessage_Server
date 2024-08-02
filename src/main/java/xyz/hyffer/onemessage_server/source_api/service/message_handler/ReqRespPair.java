@@ -1,7 +1,7 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
 import lombok.Data;
-import xyz.hyffer.onemessage_server.source_api.payload.Api;
+import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Api;
 
 /**
  * ReqRespPair is a pair of request and corresponding response handler

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import xyz.hyffer.onemessage_server.source_api.payload.Event;
+import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Event;
 import xyz.hyffer.onemessage_server.source_api.service.message_handler.EventHandler;
 import xyz.hyffer.onemessage_server.source_api.service.message_handler.ReqRespPair;
 

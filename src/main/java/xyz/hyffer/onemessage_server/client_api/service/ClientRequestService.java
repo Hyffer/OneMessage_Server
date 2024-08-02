@@ -1,7 +1,7 @@
 package xyz.hyffer.onemessage_server.client_api.service;
 
-import xyz.hyffer.onemessage_server.client_api.payload.RequestBody;
-import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.RequestBody;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.SendBody;
 
 public interface ClientRequestService {
 

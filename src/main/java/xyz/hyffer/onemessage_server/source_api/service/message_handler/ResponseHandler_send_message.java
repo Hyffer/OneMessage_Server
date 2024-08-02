@@ -1,14 +1,12 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
-import xyz.hyffer.onemessage_server.client_api.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.SendBody;
 import xyz.hyffer.onemessage_server.client_api.service.ClientPushService;
-import xyz.hyffer.onemessage_server.source_api.payload.Response;
-import xyz.hyffer.onemessage_server.storage.component.Contact;
-import xyz.hyffer.onemessage_server.storage.component.Message;
+import xyz.hyffer.onemessage_server.model.Contact;
+import xyz.hyffer.onemessage_server.model.Message;
+import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Response;
 
 import java.sql.Timestamp;
-
-import static xyz.hyffer.onemessage_server.source_api.service.storage_maintainer.StaticStorage.*;
 
 public class ResponseHandler_send_message extends ResponseHandler {
 
@@ -23,12 +21,12 @@ public class ResponseHandler_send_message extends ResponseHandler {
     @Override
     public void onResponse(Response response) {
         message.setTime(new Timestamp(System.currentTimeMillis()));
-        contact.setTotal(contact.getTotal() + 1);
-        contact.setLastMsgTime(message.getTime());
+//        contact.setTotal(contact.getTotal() + 1);
+//        contact.setLastMsgTime(message.getTime());
 
-        messageMapper.addMessageRecord(contact.get_CID(), message);
-        messageContentMapper.saveMessageContent(contact.get_CID(), message);
-        contactMapper.updateContactStatus(contact);
+//        messageMapper.addMessageRecord(contact.get_CID(), message);
+//        messageContentMapper.saveMessageContent(contact.get_CID(), message);
+//        contactMapper.updateContactStatus(contact);
 
         ClientPushService.pushStatus(contact.get_CID(), SendBody.PushBody.PushEvent.RECEIVE_MESSAGE);
     }
