@@ -2,6 +2,7 @@ package xyz.hyffer.onemessage_server.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Generated;
 import org.hibernate.generator.EventType;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
  * Group different {@link ContactInstance}s of one real entity together
  */
 @Data
+@Slf4j
 @Entity
 @Table(indexes = {
         @Index(columnList = "changeOrder", unique = true),
@@ -134,43 +136,57 @@ public class Contact {
         return null;
     }
 
-    public void addInstance(ContactInstance instance) {
-        ContactInstance tobeUpdated = getAssociatedInstanceByExample(instance);
-        if (tobeUpdated != null) {
-            // error
-            return;
+    public boolean addInstance(ContactInstance instance) {
+        ContactInstance existing = getAssociatedInstanceByExample(instance);
+        if (existing != null) {
+            log.error("Trying to add " + instance
+                    + " to " + this
+                    + ". But the instance already exists.");
+            return false;
         }
 
         ++_instanceEditTimes;
         instance.setAttachedContact(this);
         instances.add(instance);
+        if (deleted) {
+            deleted = false;
+        }
+        return true;
     }
 
-    public void updateInstance(ContactInstance instance) {
+    public boolean updateInstance(ContactInstance instance) {
         ContactInstance tobeUpdated = getAssociatedInstanceByExample(instance);
         if (tobeUpdated == null) {
-            // error
-            return;
+            log.error("Trying to update " + instance
+                    + " of " + this
+                    + ". But none of instances matches.");
+            return false;
         }
 
         ++_instanceEditTimes;
         instances.remove(tobeUpdated);
+        tobeUpdated.setAttachedContact(null);
         instance.setAttachedContact(this);
         instances.add(instance);
+        return true;
     }
 
-    public void removeInstance(ContactInstance instance) {
+    public boolean removeInstance(ContactInstance instance) {
         ContactInstance tobeRemoved = getAssociatedInstanceByExample(instance);
         if (tobeRemoved == null) {
-            // error
-            return;
+            log.error("Trying to remove " + instance
+                    + " from " + this
+                    + ". But none of instances matches.");
+            return false;
         }
 
         ++_instanceEditTimes;
         instances.remove(tobeRemoved);
+        tobeRemoved.setAttachedContact(null);
         if (instances.isEmpty()) {
             deleted = true;
         }
+        return true;
     }
 
 }
