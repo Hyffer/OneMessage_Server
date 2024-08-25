@@ -28,18 +28,44 @@ public class MessageRepositoryTest extends RepositoryTest {
     }
 
     @Test
-    void update_changeOrder_increment() {
-        Message original_message = data.messages.get(0);
-        int old_eventSeq = original_message.getChangeOrder();
-
-        Optional<Message> result = messageRepository.findById(original_message.get_MID());
+    void update_rank_increment() {
+        int e_MID = data.messages.get(0).get_MID();
+        Optional<Message> result = messageRepository.findById(e_MID);
         assert result.isPresent();
-        Message modified_message = result.get();
-        modified_message.setModifiedTime(new Timestamp(System.currentTimeMillis()));
-        messageRepository.save(modified_message);
-        messageRepository.flush();  // this is necessary to get database generated value
+        Message message = result.get();
+        int old_rank = message.getRank();
+        int old_contentOrder = message.getContentOrder();
 
-        int new_eventSeq = modified_message.getChangeOrder();
-        assertThat(new_eventSeq).isGreaterThan(old_eventSeq);
+        // `rank` increment
+        message.setTime(new Timestamp(System.currentTimeMillis()));
+        messageRepository.save(message);
+        messageRepository.flush();  // this is necessary to get database generated value
+        int new_rank = message.getRank();
+        assertThat(new_rank).isGreaterThan(old_rank);
+
+        // meanwhile `contentOrder` remains the same
+        int new_contentOrder = message.getContentOrder();
+        assertThat(new_contentOrder).isEqualTo(old_contentOrder);
+    }
+
+    @Test
+    void update_contentOrder_increment() {
+        int e_MID = data.messages.get(0).get_MID();
+        Optional<Message> result = messageRepository.findById(e_MID);
+        assert result.isPresent();
+        Message message = result.get();
+        int old_rank = message.getRank();
+        int old_contentOrder = message.getContentOrder();
+
+        // `contentOrder` increment
+        message.setModifiedTime(new Timestamp(System.currentTimeMillis()));
+        messageRepository.save(message);
+        messageRepository.flush();  // this is necessary to get database generated value
+        int new_contentOrder = message.getContentOrder();
+        assertThat(new_contentOrder).isGreaterThan(old_contentOrder);
+
+        // meanwhile `rank` remains the same
+        int new_rank = message.getRank();
+        assertThat(new_rank).isEqualTo(old_rank);
     }
 }

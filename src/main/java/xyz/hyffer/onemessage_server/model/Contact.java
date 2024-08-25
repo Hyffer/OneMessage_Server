@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 })
 @SecondaryTable(name = "contact_state", indexes = {
         @Index(columnList = "stateOrder", unique = true),
-        @Index(columnList = "lastMsg_MID")
+        @Index(columnList = "lastMsgRank")
 })
 public class Contact {
     @Id
@@ -39,7 +39,7 @@ public class Contact {
      * with `deleted` field set.
      * <p>
      * The changes include `remark`, `pinned` and `instances`.
-     * But message related properties like `unread` and `lastMsg_MID` are not considered here.
+     * But message related properties like `unread` and `lastMsgRank` are not considered here.
      * See `stateOrder` for more details.
      */
     @Column(columnDefinition="serial")
@@ -73,8 +73,8 @@ public class Contact {
      * like `changeOrder`, `stateOrder` is also a global sequence, denoting the order of
      * message receiving, sending and reading. These three operations are the majority in daily use.
      * <p>
-     * On message receiving, `lastMsg_MID` and `unread` increase.
-     * When reading, `unread` is reset. And when sending, `lastMsg_MID` is updated.
+     * On message receiving, `lastMsgRank` and `unread` increase.
+     * When reading, `unread` is reset. And when sending, `lastMsgRank` is updated.
      * So we could synchronize only those fields and ignoring others
      * to reduce synchronization cost.
      */
@@ -88,7 +88,7 @@ public class Contact {
     // These are redundant information, which can be deduced from message table.
     // But for better performance, some are stored with contact.
     @Column(table = "contact_state")
-    int lastMsg_MID;
+    int lastMsgRank;
     // The last message with this contact.
     @Transient
     Message lastMsg;
@@ -107,13 +107,13 @@ public class Contact {
             builderMethodName = "rawBuilder", access = AccessLevel.PACKAGE)
     public Contact(int _CID,
                    int changeOrder, boolean deleted, String remark, boolean pinned,
-                   int stateOrder, int unread, int lastMsg_MID) {
+                   int stateOrder, int unread, int lastMsgRank) {
         this(remark, pinned, unread);
         this._CID = _CID;
         this.changeOrder = changeOrder;
         this.deleted = deleted;
         this.stateOrder = stateOrder;
-        this.lastMsg_MID = lastMsg_MID;
+        this.lastMsgRank = lastMsgRank;
     }
 
     public Set<Integer> getInstanceIds() {

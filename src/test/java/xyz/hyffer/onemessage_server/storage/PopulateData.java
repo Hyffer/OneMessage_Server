@@ -49,7 +49,7 @@ public class PopulateData {
         assert messages.stream().map(Message::get_MID).distinct().count()
                 == messages.size();
         // check auto generated non-pk column
-        assert messages.stream().map(Message::getChangeOrder).distinct().count()
+        assert messages.stream().map(Message::getRank).distinct().count()
                 == messages.size();
     }
 }

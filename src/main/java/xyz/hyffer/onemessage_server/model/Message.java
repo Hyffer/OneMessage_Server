@@ -14,8 +14,11 @@ import java.util.List;
 @Data
 @Entity
 @Table(indexes = {
-        @Index(columnList = "changeOrder", unique = true),
-        @Index(name = "message_retrieve_key", columnList = "_CiID, _MID", unique = true)
+        @Index(columnList = "rank", unique = true),
+        @Index(name = "message_retrieve_key", columnList = "_CiID, rank", unique = true)
+})
+@SecondaryTable(name = "message_content", indexes = {
+        @Index(columnList = "contentOrder", unique = true)
 })
 public class Message {
     // TODO: table partition by _CiID,
@@ -26,28 +29,37 @@ public class Message {
     @Setter(AccessLevel.PACKAGE)
     int _MID;
 
+    int _CiID;
+
+    // these properties only used in group message
+    String type;
+    String senderId;
+    String senderName;
+
     /**
-     * `changeOrder` is used for synchronization purpose.
+     * `rank` indicates the temporal sequence of messages, which is a total order relationship.
+     * Meanwhile, it represents message change order, used for synchronization purpose.
      * <p>
-     * Message record insert/update happens one by one.
-     * This `changeOrder` number represents the modification sequence,
-     * for easy data synchronization.
+     * Because message sending is asynchronous,
+     * when message status switches from `SENDING` to `OUT` or `ERROR`,
+     * `time` and metadata properties will get changed.
      */
     @Column(columnDefinition="serial")
-    @Generated(event = {EventType.INSERT, EventType.UPDATE}, sql = "nextval('message_change_order_seq')")
+    @Generated(event = {EventType.INSERT, EventType.UPDATE}, sql = "nextval('message_rank_seq')")
     @Setter(AccessLevel.PACKAGE)
-    int changeOrder;
-
-    int _CiID;
-    String direction;
+    int rank;
 
     // message send/receive time
-    // one with later `time` has larger `_MID`
+    // one with later `time` has larger `rank`, but `time` might not be unique.
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Timestamp time;
-    // message modify/withdraw time
-    Timestamp modifiedTime;
-    boolean deleted;
+
+    public enum Status {
+        ERROR, IN, OUT, SENDING
+    }
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    Status status;
 
     // TODO: metadata to refer to a specific message
     //  for reply and withdraw.
@@ -56,11 +68,21 @@ public class Message {
 //    int internalId;
 //    int quoteId;
 
-    // these properties only used in group message
-    String type;
-    String senderId;
-    String senderName;
+    /**
+     * `contentOrder` is used for message content synchronization.
+     */
+    @Column(columnDefinition="serial", table = "message_content")
+    @Generated(event = {EventType.INSERT, EventType.UPDATE}, sql = "nextval('message_content_content_order_seq')")
+    @Setter(AccessLevel.PACKAGE)
+    int contentOrder;
 
+    // message modify/withdraw time
+    @Column(table = "message_content")
+    Timestamp modifiedTime;
+    @Column(table = "message_content")
+    boolean deleted;
+
+    @Column(table = "message_content")
     @JdbcTypeCode(SqlTypes.JSON)
     List<MessageSegment> segments;
 
@@ -69,20 +91,20 @@ public class Message {
 
     @Builder(builderClassName = "MessageRawBuilder",
             builderMethodName = "rawBuilder", access = AccessLevel.PACKAGE)
-    public Message(int _MID, int changeOrder,
-                   int _CiID, String direction, Timestamp time, Timestamp modifiedTime, boolean deleted,
+    public Message(int _MID, int _CiID,
                    String type, String senderId, String senderName,
+                   Timestamp time, Status status,
+                   Timestamp modifiedTime, boolean deleted,
                    @Singular List<MessageSegment> segments) {
         this._MID = _MID;
-        this.changeOrder = changeOrder;
         this._CiID = _CiID;
-        this.direction = direction;
-        this.time = time;
-        this.modifiedTime = modifiedTime;
-        this.deleted = deleted;
         this.type = type;
         this.senderId = senderId;
         this.senderName = senderName;
+        this.time = time;
+        this.status = status;
+        this.modifiedTime = modifiedTime;
+        this.deleted = deleted;
         this.segments = segments;
     }
 }

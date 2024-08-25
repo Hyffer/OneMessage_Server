@@ -65,36 +65,53 @@ password: $password
 get_contacts
 ```
 
-负载:
+负载-1:
 
-键 | 值 | 注释
----|---|---
-sort| Default / Search| 默认 / 搜索
-key| 字符串| 搜索内容（仅在搜索时有意义）
-num | 自然数|内容长度（0 表示无限制）
+| 键        | 类型  | 注释                   | 缺省值               |
+|----------|-----|----------------------|-------------------|
+| _CID_l   | 自然数 |                      | 0                 |
+| _CID_r   | 正整数 |                      | `max(type(_CID))` |
+| pre_cOrd | 正整数 | 按 changeOrder 分页的起点  | 可缺省               |
+| pre_sOrd | 正整数 | 按 stateOrder 分页的起点   | 可缺省               |
+| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false             |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                |
+
+1. 当 pre_cOrd 和 pre_sOrd 不存在时，获取 `_CID_l < _CID <= _CID_r` 的数据，按 _CID 从小到大排列
+2. pre_cOrd 存在，pre_sOrd 不存在时，获取 `changeOrder > pre_cOrd && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>，按 changeOrder 从小到大排列
+3. pre_cOrd 不存在，pre_sOrd 存在时，获取 `stateOrder > pre_sOrd && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>，按 stateOrder 从小到大排列
+4. pre_cOrd 和 pre_sOrd 都存在时，limit 必须为 0，获取 `(changeOrder > pre_cOrd || stateOrder > pre_sOrd) && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>。
+   由于 changeOrder 和 stateOrder 是不同的顺序关系，两者间无法同时排序，数据没有排序保证，无法分片
+
+(1): 数据一定包含变更的属性，可能不包含所有属性。
+
+负载-2:
+
+| 键           | 类型  | 注释                   | 缺省值                      |
+|-------------|-----|----------------------|--------------------------|
+| pinned      | 布尔  | 获取置顶联系人              | false                    |
+| post_lMRank | 正整数 | 按 lastMsgRank 分页的起点  | `max(type(lastMsgRank))` |
+| all_attr    | 布尔  | 是否包含 `@Transient` 属性 | false                    |
+| limit       | 自然数 | 内容长度（0 表示无限制）        | 20                       |
+
+使用 post_lMRank 分页，获取 `!pinned (or pinned) && lastMsgRank < post_lMRank` 的数据，结果按 lastMsgRank 由大到小排序
+
+负载-3:
+
+| 键        | 类型  | 注释                   | 缺省值   |
+|----------|-----|----------------------|-------|
+| key      | 字符串 | 搜索关键字                | 不可缺省  |
+| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20    |
 
 响应：
 ```json
 {
-  "code": 0,
+  "code": 200,
   "contacts": [...]
 }
 ```
 
 contacts 为有序数组，其中每一个元素表示一个联系人。
-
-不论是默认情况下按照最近通讯时间排序还是搜索时按照相关性排序，联系人的**排序逻辑在服务器侧完成**，客户端只负责渲染。
-
-联系人元素有以下结构：
-
-键 | 值 | 注释
----|---|---
-_CID|
-remark|
-unread|
-pinned|
-lastMsgTime|
-
 
 #### 获取消息
 该操作不改变服务器存储的数据
@@ -104,18 +121,38 @@ lastMsgTime|
 get_messages
 ```
 
-负载：
+负载-1：
 
-键 | 值 | 注释
----|---|---
-_CID | | 联系人编号
-lastMsg_MID | | 获取消息的起始编号（0 表示最新消息）
-num | | 获取消息条数
+| 键        | 类型  | 注释                   | 缺省值               |
+|----------|-----|----------------------|-------------------|
+| _MID_l   | 自然数 |                      | 0                 |
+| _MID_r   | 正整数 |                      | `max(type(_MID))` |
+| pre_rank | 正整数 | 按 rank 分页的起点         | 可缺省               |
+| pre_cOrd | 正整数 | 按 contentOrder 分页的起点 | 可缺省               |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                |
+
+1. 当 pre_rank 和 pre_cOrd 不存在时，获取 `_MID_l < _MID <= _MID_r` 的数据，按 _MID 从小到大排列
+2. pre_rank 存在，pre_cOrd 不存在时，获取 `rank > pre_rank && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>，按 rank 从小到大排列
+3. pre_rank 不存在，pre_cOrd 存在时，获取 `contentOrder > pre_cOrd && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>，按 contentOrder 从小到大排列
+4. pre_rank 和 pre_cOrd 同时存在时，limit 必须为 0，获取 `(rank > pre_rank || contentOrder > pre_cOrd) && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>。
+   由于 rank 和 contentOrder 是不同的顺序关系，两者间无法同时排序，数据没有排序保证，无法分片
+
+(1): 数据一定包含变更的属性，可能不包含所有属性。
+
+负载-2：
+
+| 键         | 类型  | 注释            | 缺省值               |
+|-----------|-----|---------------|-------------------|
+| _CID      | 正整数 | 联系人编号         | 不可缺省              |
+| post_rank | 正整数 | 按 rank 分页的起点  | `max(type(rank))` |
+| limit     | 自然数 | 内容长度（0 表示无限制） | 0                 |
+
+获取与 _CID 指定联系人关联的 `rank < post_rank` 的数据，结果按 rank 从小到大排列
 
 响应：
 ```json
 {
-  "code": 0,
+  "code": 200,
   "messages": [...]
 }
 ```
@@ -127,24 +164,24 @@ messages 为有序数组，其中每一个元素表示一条消息。
 
 命令：
 ```text
-update_status
+update_state
 ```
 
 负载：
 
-键 | 值 | 注释
----|---|---
-_CID | | 联系人编号
-status | Read / Pin / UnPin |已读 / 置顶 / 取消置顶
+| 键    | 类型  | 注释      | 缺省值  |
+|------|-----|---------|------|
+| _CID | 正整数 | 联系人编号   | 不可缺省 |
+| read | 布尔  | 已读 / 未读 | 可缺省  |
 
 响应：
 ```json
 {
-  "code": 0
+  "code": 200
 }
 ```
 
-#### 发送消息
+#### 发送消息（异步）
 
 命令：
 ```text
@@ -153,16 +190,17 @@ post_message
 
 负载：
 
-键 | 值 | 注释
----|---|---
-_CID | | 联系人编号
-_SID | | 消息源编号（0 表示自动）
-message | | 消息
+| 键       | 类型                     | 注释             | 缺省值  |
+|---------|------------------------|----------------|------|
+| _CID    | 正整数                    | 联系人编号          | 不可缺省 |
+| _CiID   | 自然数                    | 指定发送渠道（0 表示自动） | 0    |
+| content | `List<MessageSegment>` | 消息             | 不可缺省 |
 
 响应：
 ```json
 {
-  "code": 0
+  "code": 202,
+  "_MID": 123
 }
 ```
 
@@ -171,27 +209,37 @@ message | | 消息
 响应：
 ```json
 {
-  "code": 1,
+  "code": 4xx/5xx,
   "msg": ""
 }
 ```
 
 异常码
 
-code | msg | 原因
----|---|---
-1 | Authenticate failed. | 身份认证失败
-2 | Request cannot be resolved. | 命令或负载不正确，请求JSON文本无法反序列化
-3 | Unexpected value. | 请求值异常
-
+| code | msg                       | 原因        |
+|------|---------------------------|-----------|
+| 401  | Authentication failed.    | 身份认证失败    |
+| 400  | Request format incorrect. | 请求格式不符合要求 |
+| 422  | Unexpected value.         | 参数不合逻辑    |
+| 501  | Not implemented yet.      | 功能尚未实现    |
 
 ### 推送式
 
 #### 状态推送
-状态推送操作只是服务器通知客户端有内容发生变动，并不传递具体变动的内容。
-接下来的执行逻辑由客户端定义。比如通过 “请求-应答式” 接口获取变动的内容。
+服务器通知客户端内容发生变动。
 
-键 | 值 | 注释
----|---|---
-event | ReceiveMsg / StatusChange | 收到消息 / 联系人未读、置顶等状态改变
-_CID | | 与该事件关联的联系人编号
+状态推送有几种不同的工作模式：
+1. 完全内容推送：推送联系人和消息的所有变更<sup>(1)</sup>
+2. 联系人内容推送：推送联系人的变更内容<sup>(1)</sup>和消息变更的元信息<sup>(2)</sup>
+3. （同上）与此同时，联系人的变更内容包含 `@Transient` 属性
+4. 精简通知推送：仅推送启用通知的联系人变更内容<sup>(1)</sup>和其消息变更的元信息<sup>(2)</sup>
+5. （同上）与此同时，联系人的变更内容包含 `@Transient` 属性
+
+| 键       | 类型        | 注释     |
+|---------|-----------|--------|
+| contact | `Contact` | 变更的联系人 |
+| message | `Message` | 变更的消息  |
+
+(1): 数据一定包含变更的属性，可能不包含所有属性，一定不包含 `@Transient` 属性。
+
+(2): 数据只包含索引、序列等元信息，不包含变更的具体内容。
