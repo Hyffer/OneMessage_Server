@@ -1,23 +1,17 @@
 package xyz.hyffer.onemessage_server.client_api.service;
 
-import xyz.hyffer.onemessage_server.model.Contact;
-import xyz.hyffer.onemessage_server.model.Message;
+import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientException;
+import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientRequestBody;
+import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientResponse;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-/**
- * See <a href="docs/API_CS.md">API_CS.md</a>
- */
 public interface ClientService {
-    List<Contact> getContacts(int _CID, String key, Timestamp start, int limit);
-    List<Message> getMessages(int _CID, int lastMsg_MID, int num);
-//    List<Contact> catchupContacts();
-//    List<Message> catchupMessages();
 
-    void postMessage();
-    void readContact();
-    void editContact();
+    ClientResponse.GetContacts getContacts(ClientRequestBody.GetContacts requestBody) throws ClientException;
 
-    void push();
+    ClientResponse.GetMessages getMessages(ClientRequestBody.GetMessages requestBody) throws ClientException;
+
+    ClientResponse.UpdateState updateStatus(ClientRequestBody.UpdateState requestBody) throws ClientException;
+
+    ClientResponse.PostMessage postMessage(ClientRequestBody.PostMessage requestBody) throws ClientException;
+
 }

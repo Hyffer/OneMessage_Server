@@ -67,41 +67,41 @@ get_contacts
 
 负载-1:
 
-| 键        | 类型  | 注释                   | 缺省值               |
-|----------|-----|----------------------|-------------------|
-| _CID_l   | 自然数 |                      | 0                 |
-| _CID_r   | 正整数 |                      | `max(type(_CID))` |
-| pre_cOrd | 正整数 | 按 changeOrder 分页的起点  | 可缺省               |
-| pre_sOrd | 正整数 | 按 stateOrder 分页的起点   | 可缺省               |
-| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false             |
-| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                |
+| 键        | 类型  | 注释                   | 缺省值                          |
+|----------|-----|----------------------|------------------------------|
+| _CID_l   | 自然数 | 区间左端点                | 可缺省，缺省时等价于 0                 |
+| _CID_r   | 正整数 | 区间右端点                | 可缺省，缺省时等价于 `max(type(_CID))` |
+| pre_cOrd | 正整数 | 按 changeOrder 分页的起点  | 可缺省                          |
+| pre_sOrd | 正整数 | 按 stateOrder 分页的起点   | 可缺省                          |
+| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false                        |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                           |
 
 1. 当 pre_cOrd 和 pre_sOrd 不存在时，获取 `_CID_l < _CID <= _CID_r` 的数据，按 _CID 从小到大排列
 2. pre_cOrd 存在，pre_sOrd 不存在时，获取 `changeOrder > pre_cOrd && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>，按 changeOrder 从小到大排列
 3. pre_cOrd 不存在，pre_sOrd 存在时，获取 `stateOrder > pre_sOrd && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>，按 stateOrder 从小到大排列
-4. pre_cOrd 和 pre_sOrd 都存在时，limit 必须为 0，获取 `(changeOrder > pre_cOrd || stateOrder > pre_sOrd) && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>。
+4. **pre_cOrd 和 pre_sOrd 都存在时，limit 必须为 0**，获取 `(changeOrder > pre_cOrd || stateOrder > pre_sOrd) && _CID_l < _CID <= _CID_r` 的数据<sup>(1)</sup>。
    由于 changeOrder 和 stateOrder 是不同的顺序关系，两者间无法同时排序，数据没有排序保证，无法分片
 
 (1): 数据一定包含变更的属性，可能不包含所有属性。
 
 负载-2:
 
-| 键           | 类型  | 注释                   | 缺省值                      |
-|-------------|-----|----------------------|--------------------------|
-| pinned      | 布尔  | 获取置顶联系人              | false                    |
-| post_lMRank | 正整数 | 按 lastMsgRank 分页的起点  | `max(type(lastMsgRank))` |
-| all_attr    | 布尔  | 是否包含 `@Transient` 属性 | false                    |
-| limit       | 自然数 | 内容长度（0 表示无限制）        | 20                       |
+| 键           | 类型  | 注释                   | 缺省值                                     |
+|-------------|-----|----------------------|-----------------------------------------|
+| pinned      | 布尔  | 获取置顶联系人              | 不可缺省                                    |
+| post_lMRank | 正整数 | 按 lastMsgRank 分页的起点  | 可缺省，缺省时等价于 `max(type(lastMsgRank)) + 1` |
+| all_attr    | 布尔  | 是否包含 `@Transient` 属性 | false                                   |
+| limit       | 自然数 | 内容长度（0 表示无限制）        | 20                                      |
 
 使用 post_lMRank 分页，获取 `!pinned (or pinned) && lastMsgRank < post_lMRank` 的数据，结果按 lastMsgRank 由大到小排序
 
 负载-3:
 
-| 键        | 类型  | 注释                   | 缺省值   |
-|----------|-----|----------------------|-------|
-| key      | 字符串 | 搜索关键字                | 不可缺省  |
-| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false |
-| limit    | 自然数 | 内容长度（0 表示无限制）        | 20    |
+| 键        | 类型  | 注释                   | 缺省值        |
+|----------|-----|----------------------|------------|
+| key      | 字符串 | 搜索关键字                | 不可缺省，不可为空串 |
+| all_attr | 布尔  | 是否包含 `@Transient` 属性 | false      |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20         |
 
 响应：
 ```json
@@ -123,29 +123,29 @@ get_messages
 
 负载-1：
 
-| 键        | 类型  | 注释                   | 缺省值               |
-|----------|-----|----------------------|-------------------|
-| _MID_l   | 自然数 |                      | 0                 |
-| _MID_r   | 正整数 |                      | `max(type(_MID))` |
-| pre_rank | 正整数 | 按 rank 分页的起点         | 可缺省               |
-| pre_cOrd | 正整数 | 按 contentOrder 分页的起点 | 可缺省               |
-| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                |
+| 键        | 类型  | 注释                   | 缺省值                          |
+|----------|-----|----------------------|------------------------------|
+| _MID_l   | 自然数 | 区间左端点                | 可缺省，缺省时等价于 0                 |
+| _MID_r   | 正整数 | 区间右端点                | 可缺省，缺省时等价于 `max(type(_MID))` |
+| pre_rank | 正整数 | 按 rank 分页的起点         | 可缺省                          |
+| pre_cOrd | 正整数 | 按 contentOrder 分页的起点 | 可缺省                          |
+| limit    | 自然数 | 内容长度（0 表示无限制）        | 20                           |
 
 1. 当 pre_rank 和 pre_cOrd 不存在时，获取 `_MID_l < _MID <= _MID_r` 的数据，按 _MID 从小到大排列
 2. pre_rank 存在，pre_cOrd 不存在时，获取 `rank > pre_rank && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>，按 rank 从小到大排列
 3. pre_rank 不存在，pre_cOrd 存在时，获取 `contentOrder > pre_cOrd && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>，按 contentOrder 从小到大排列
-4. pre_rank 和 pre_cOrd 同时存在时，limit 必须为 0，获取 `(rank > pre_rank || contentOrder > pre_cOrd) && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>。
+4. **pre_rank 和 pre_cOrd 同时存在时，limit 必须为 0**，获取 `(rank > pre_rank || contentOrder > pre_cOrd) && _MID_l < _MID <= _MID_r` 的数据<sup>(1)</sup>。
    由于 rank 和 contentOrder 是不同的顺序关系，两者间无法同时排序，数据没有排序保证，无法分片
 
 (1): 数据一定包含变更的属性，可能不包含所有属性。
 
 负载-2：
 
-| 键         | 类型  | 注释            | 缺省值               |
-|-----------|-----|---------------|-------------------|
-| _CID      | 正整数 | 联系人编号         | 不可缺省              |
-| post_rank | 正整数 | 按 rank 分页的起点  | `max(type(rank))` |
-| limit     | 自然数 | 内容长度（0 表示无限制） | 0                 |
+| 键         | 类型  | 注释            | 缺省值                              |
+|-----------|-----|---------------|----------------------------------|
+| _CID      | 正整数 | 联系人编号         | 不可缺省                             |
+| post_rank | 正整数 | 按 rank 分页的起点  | 可缺省，缺省时等价于 `max(type(rank)) + 1` |
+| limit     | 自然数 | 内容长度（0 表示无限制） | 20                               |
 
 获取与 _CID 指定联系人关联的 `rank < post_rank` 的数据，结果按 rank 从小到大排列
 
@@ -190,11 +190,11 @@ post_message
 
 负载：
 
-| 键       | 类型                     | 注释             | 缺省值  |
-|---------|------------------------|----------------|------|
-| _CID    | 正整数                    | 联系人编号          | 不可缺省 |
-| _CiID   | 自然数                    | 指定发送渠道（0 表示自动） | 0    |
-| content | `List<MessageSegment>` | 消息             | 不可缺省 |
+| 键       | 类型                     | 注释             | 缺省值         |
+|---------|------------------------|----------------|-------------|
+| _CID    | 正整数                    | 联系人编号          | 不可缺省        |
+| _CiID   | 自然数                    | 指定发送渠道（0 表示自动） | 0           |
+| content | `List<MessageSegment>` | 消息             | 不可缺省，不可为空数组 |
 
 响应：
 ```json
@@ -222,6 +222,7 @@ post_message
 | 400  | Request format incorrect. | 请求格式不符合要求 |
 | 422  | Unexpected value.         | 参数不合逻辑    |
 | 501  | Not implemented yet.      | 功能尚未实现    |
+| 500  | Internal error.           | 服务器内部错误   |
 
 ### 推送式
 

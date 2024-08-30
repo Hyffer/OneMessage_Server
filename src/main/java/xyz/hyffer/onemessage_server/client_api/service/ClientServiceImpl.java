@@ -1,14 +1,18 @@
 package xyz.hyffer.onemessage_server.client_api.service;
 
 import org.springframework.stereotype.Service;
-import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.RequestBody;
-import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.SendBody;
+import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientRequestBody;
+import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientResponse;
+import xyz.hyffer.onemessage_server.model.Contact;
+import xyz.hyffer.onemessage_server.model.Message;
+
+import java.util.List;
 
 @Service
-public class ClientRequestServiceImpl implements ClientRequestService {
+public class ClientServiceImpl implements ClientService {
 
     @Override
-    public SendBody.ResponseBody getContacts(RequestBody.RequestBody_get_contacts requestBody) throws UnexpectedValueException {
+    public ClientResponse.GetContacts getContacts(ClientRequestBody.GetContacts requestBody) {
         return null;
 //        if (requestBody.getNum() < 0)
 //            throw new UnexpectedValueException();
@@ -25,7 +29,7 @@ public class ClientRequestServiceImpl implements ClientRequestService {
     }
 
     @Override
-    public SendBody.ResponseBody getMessages(RequestBody.RequestBody_get_messages requestBody) throws UnexpectedValueException {
+    public ClientResponse.GetMessages getMessages(ClientRequestBody.GetMessages requestBody) {
         return null;
 //        int _CID = requestBody.get_CID();
 //        Contact contact = contactMapper.findContactByCID(_CID);
@@ -45,12 +49,12 @@ public class ClientRequestServiceImpl implements ClientRequestService {
     }
 
     @Override
-    public SendBody.ResponseBody updateStatus(RequestBody.RequestBody_update_status requestBody) {
+    public ClientResponse.UpdateState updateStatus(ClientRequestBody.UpdateState requestBody) {
         return null;
     }
 
     @Override
-    public SendBody.ResponseBody postMessage(RequestBody.RequestBody_post_message requestBody) throws UnexpectedValueException {
+    public ClientResponse.PostMessage postMessage(ClientRequestBody.PostMessage requestBody) {
         return null;
 //        int _CID = requestBody.get_CID();
 //        int _SID = requestBody.get_SID();
@@ -71,4 +75,35 @@ public class ClientRequestServiceImpl implements ClientRequestService {
 //
 //        return new SendBody.ResponseBody.ResponseBody_no_content();
     }
+
+    List<Contact> catchupContacts(Integer _CID_l, Integer _CID_r, Integer pre_cOrd, Integer pre_sOrd, int limit) {
+        return null;
+    }
+
+    List<Message> catchupMessages(Integer _MID_l, Integer _MID_r, Integer pre_rank, Integer pre_cOrd, int limit) {
+        return null;
+    }
+
+    List<Contact> getContacts(boolean pinned, Integer post_lMRank, int limit) {
+        return null;
+    }
+
+    List<Contact> getContacts(String key, int limit) {
+        return null;
+    }
+
+    List<Message> getMessages(int _CID, Integer post_rank, int limit) {
+        return null;
+    }
+
+    void updateState() {
+
+    }
+    void postMessage() {
+
+    }
+//    void editContact() {
+//
+//    }
+
 }
