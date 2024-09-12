@@ -8,9 +8,13 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.sqm.ComparisonOperator;
 import org.hibernate.query.sqm.tree.domain.SqmBasicValuedSimplePath;
+import org.hibernate.query.sqm.tree.expression.SqmExpression;
 import org.hibernate.query.sqm.tree.expression.ValueBindJpaCriteriaParameter;
 import org.hibernate.query.sqm.tree.predicate.SqmComparisonPredicate;
+import org.hibernate.query.sqm.tree.predicate.SqmInListPredicate;
 import org.hibernate.query.sqm.tree.predicate.SqmJunctionPredicate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +25,9 @@ import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PseudoBooleanParser;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,9 +37,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
 import xyz.hyffer.onemessage_server.model.Contact;
 import xyz.hyffer.onemessage_server.model.Contact_;
+import xyz.hyffer.onemessage_server.model.Message;
+import xyz.hyffer.onemessage_server.model.Message_;
 import xyz.hyffer.onemessage_server.storage.ContactRepository;
+import xyz.hyffer.onemessage_server.storage.MessageRepository;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,6 +61,7 @@ import static org.mockito.Mockito.verify;
  * However, to get JPA Metamodel generator working, and to get `entityManager` for testing,
  * it is launched with `@DataJpaTest` annotation.
  */
+@Slf4j
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ClientCustomQueryTest {
@@ -61,11 +72,7 @@ public class ClientCustomQueryTest {
     ClientCustomQuery clientCustomQuery;
 
     ContactRepository contactRepository;
-
-    @Captor
-    ArgumentCaptor<Specification<Contact>> arg1;
-    @Captor
-    ArgumentCaptor<Pageable> arg2;
+    MessageRepository messageRepository;
 
     @BeforeEach
     void setupMock() {
@@ -73,7 +80,11 @@ public class ClientCustomQueryTest {
         given(contactRepository.findAll(ArgumentMatchers.<Specification<Contact>>any(), any(Pageable.class)))
                 .willReturn(Page.empty());
 
-        clientCustomQuery = new ClientCustomQuery(contactRepository);
+        messageRepository = mock(MessageRepository.class);
+        given(messageRepository.findAll(ArgumentMatchers.<Specification<Message>>any(), any(Pageable.class)))
+                .willReturn(Page.empty());
+
+        clientCustomQuery = new ClientCustomQuery(contactRepository, messageRepository);
     }
 
     FormulaFactory ff = new FormulaFactory();
@@ -132,18 +143,42 @@ public class ClientCustomQueryTest {
                 throw new RuntimeException("Not implement yet");
             }
 
-            String variable;    // field name
-            Integer value;      // value
-            variable = lhs.getNavigablePath().getLocalName();
-            if (!(rhs.getValue() instanceof Integer)) {
+            Formula formula;
+            // field name
+            String variable = lhs.getNavigablePath().getLocalName();
+            // handle different value types
+            if (rhs.getValue() instanceof Integer value) {
+                formula = ff.cc(op, value, ff.variable(variable));
+            } else if (rhs.getValue() instanceof Boolean value) {
+                assert op == CType.EQ;
+                formula = ff.literal(variable, value);
+            } else {
                 throw new RuntimeException("Not implement yet");
             }
-            value = (Integer) rhs.getValue();
-            assert value != null;
-            Formula formula = ff.cc(op, value, ff.variable(variable));
             if (negated)
                 formula = ff.not(formula);
             return formula;
+
+        } else if (predicate instanceof SqmInListPredicate<?> p) {
+            // variable in (value1, value2, ...)
+            SqmExpression<?> lhs = p.getTestExpression();
+            List<? extends SqmExpression<?>> rhs_l = p.getListExpressions();
+
+            // break down into disjunction of equations
+            List<Formula> formulas = new LinkedList<>();
+            for (SqmExpression<?> rhs : rhs_l) {
+                formulas.add(constructFromPredicate(new SqmComparisonPredicate(
+                        lhs,
+                        ComparisonOperator.EQUAL,
+                        rhs,
+                        p.nodeBuilder()
+                )));
+            }
+            return ff.or(formulas);
+
+        } else if (predicate == null) {
+            // empty predicate
+            return ff.constant(true);
 
         } else {
             throw new RuntimeException("Not implement yet");
@@ -159,38 +194,53 @@ public class ClientCustomQueryTest {
 
     /**
      * Check whether correct parameters are passed to {@link JpaSpecificationExecutor#findAll(Specification, Pageable)}.
-     * Parameters are captured by {@link #arg1} and {@link #arg2}
      *
-     * @param f       a formula string representing the expected predicate
-     * @param checker functor to check SQL generated by the specification
-     * @param limit   expected page size, must be positive.
-     *                or null representing no paging
-     * @param sort    expected sort order. {@link Sort#unsorted()} or null representing no sorting
+     * @param repository repository to be checked
+     * @param f          a formula string representing the expected predicate.
+     *                   null means do not parse and check logic formula
+     * @param checker    functor to check SQL generated by the specification
+     * @param limit      expected page size, must be positive.
+     *                   or null representing no paging
+     * @param sort       expected sort order. {@link Sort#unsorted()} or null representing no sorting
+     * @param <T>        entity type
      */
-    void checkParams(String f, SQLChecker checker, Integer limit, Sort sort) {
-        Specification<Contact> specification = arg1.getValue();
+    <T> void checkParams(JpaSpecificationExecutor<T> repository,
+                         String f, SQLChecker checker, Integer limit, Sort sort) {
+        // get entity class
+        @SuppressWarnings("unchecked")
+        Class<T> Tclass = (Class<T>) GenericTypeResolver.resolveTypeArgument(repository.getClass(), JpaSpecificationExecutor.class);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Specification<T>> arg1 = ArgumentCaptor.forClass(Specification.class);
+        ArgumentCaptor<Pageable> arg2 = ArgumentCaptor.forClass(Pageable.class);
+        verify(repository).findAll(arg1.capture(), arg2.capture());
+        Specification<T> specification = arg1.getValue();
         Pageable pageable = arg2.getValue();
 
         // check specification
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Contact> query = builder.createQuery(Contact.class);
-        Root<Contact> root = query.from(Contact.class);
+        CriteriaQuery<T> query = builder.createQuery(Tclass);
+        Root<T> root = query.from(Tclass);
         Predicate predicate = specification.toPredicate(root, query, builder);
 
         // construct formula from specification, and compare with expected
-        Formula formula = constructFromPredicate(predicate);
-        Formula formula_expected;
-        try {
-            formula_expected = pp.parse(f);
-        } catch (ParserException e) {
-            throw new RuntimeException(e);
+        if (f != null) {
+            Formula formula = constructFromPredicate(predicate);
+            Formula formula_expected;
+            try {
+                formula_expected = pp.parse(f);
+            } catch (ParserException e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(formula).isEqualTo(formula_expected);
+        } else {
+            log.warn("Skip checking logic formula.");
         }
-        assertThat(formula).isEqualTo(formula_expected);
 
         // check specification by generated SQL
         if (checker != null) {
             query.where(predicate);
-            TypedQuery<Contact> q = entityManager.createQuery(query);
+            TypedQuery<T> q = entityManager.createQuery(query);
             String sql = SQLExtractor.from(q);
             checker.check(sql);
         }
@@ -214,8 +264,8 @@ public class ClientCustomQueryTest {
     @Test
     void catchupContacts_case1() {
         clientCustomQuery.catchupContacts(35, null, null, null, 15);
-        verify(contactRepository).findAll(arg1.capture(), arg2.capture());
         checkParams(
+                contactRepository,
                 "_CID > 35",
                 null,
                 15,
@@ -226,8 +276,8 @@ public class ClientCustomQueryTest {
     @Test
     void catchupContacts_case2() {
         clientCustomQuery.catchupContacts(null, 70, 12, null, 10);
-        verify(contactRepository).findAll(arg1.capture(), arg2.capture());
         checkParams(
+                contactRepository,
                 "_CID <= 70 & changeOrder > 12",
                 null,
                 10,
@@ -238,8 +288,8 @@ public class ClientCustomQueryTest {
     @Test
     void catchupContacts_case3() {
         clientCustomQuery.catchupContacts(null, null, null, 1, 0);
-        verify(contactRepository).findAll(arg1.capture(), arg2.capture());
         checkParams(
+                contactRepository,
                 "stateOrder > 1",
                 null,
                 null,
@@ -250,8 +300,8 @@ public class ClientCustomQueryTest {
     @Test
     void catchupContacts_case4() {
         clientCustomQuery.catchupContacts(15, 20, 1, 1, 0);
-        verify(contactRepository).findAll(arg1.capture(), arg2.capture());
         checkParams(
+                contactRepository,
                 "_CID > 15 & _CID <= 20 & (changeOrder > 1 | stateOrder > 1)",
                 sql -> {
                     System.out.println(sql);
@@ -262,6 +312,114 @@ public class ClientCustomQueryTest {
                 },
                 null,
                 Sort.unsorted()
+        );
+    }
+
+    @Test
+    void catchupMessages_case1() {
+        clientCustomQuery.catchupMessages(null, null, null, null, 10);
+        checkParams(
+                messageRepository,
+                "",
+                null,
+                10,
+                Sort.by(Sort.Direction.ASC, Message_._MID.getName())
+        );
+    }
+
+    @Test
+    void catchupMessages_case2() {
+        clientCustomQuery.catchupMessages(null, null, 80, null, 1);
+        checkParams(
+                messageRepository,
+                "rank > 80",
+                null,
+                1,
+                Sort.by(Sort.Direction.ASC, Message_.rank.getName())
+        );
+    }
+
+    @Test
+    void catchupMessages_case3() {
+        clientCustomQuery.catchupMessages(30, 39, null, 5, 99);
+        checkParams(
+                messageRepository,
+                "_MID > 30 & _MID <= 39 & contentOrder > 5",
+                null,
+                99,
+                Sort.by(Sort.Direction.ASC, Message_.contentOrder.getName())
+        );
+    }
+
+    @Test
+    void catchupMessages_case4() {
+        clientCustomQuery.catchupMessages(30, 20, 5, 6, 0);
+        checkParams(
+                messageRepository,
+                "_MID > 30 & _MID <= 20 & (rank > 5 | contentOrder > 6)",
+                sql -> {
+                    System.out.println(sql);
+                    assertTrue(sql.contains("(") && sql.contains(")"));
+                    String substring = sql.substring(sql.indexOf('(') + 1, sql.lastIndexOf(')'));
+                    assertThat(StringUtils.countOccurrencesOf(substring, " or ")).isEqualTo(1);
+                    assertThat(StringUtils.countOccurrencesOf(substring, " and ")).isEqualTo(0);
+                },
+                null,
+                null
+        );
+    }
+
+    @Test
+    void getContacts_1() {
+        clientCustomQuery.getContacts(true, 10, 5);
+        checkParams(
+                contactRepository,
+                "pinned & lastMsgRank < 10",
+                null,
+                5,
+                Sort.by(Sort.Direction.DESC, Contact_.lastMsgRank.getName())
+        );
+    }
+
+    @Test
+    void getContacts_2() {
+        clientCustomQuery.getContacts(false, null, 0);
+        checkParams(
+                contactRepository,
+                "~pinned",
+                null,
+                null,
+                Sort.by(Sort.Direction.DESC, Contact_.lastMsgRank.getName())
+        );
+    }
+
+    @Test
+    void getContacts_3() {
+        clientCustomQuery.getContacts("Bob", 5);
+        checkParams(
+                contactRepository,
+                null,
+                sql -> {
+                    System.out.println(sql);
+                    assertTrue(sql.contains("remark like"));
+                },
+                5,
+                null
+        );
+    }
+
+    @Test
+    void getMessages_1() {
+        clientCustomQuery.getMessages(Set.of(1, 2, 3), 10, 5);
+        checkParams(
+                messageRepository,
+                "(_CiID = 1 | _CiID = 2 | _CiID = 3) & rank < 10",
+                sql -> {
+                    System.out.println(sql);
+                    assertTrue(sql.contains("_ciid in"));
+                },
+                5,
+                Sort.by(Sort.Direction.DESC, Message_.rank.getName())
         );
     }
 }

@@ -10,6 +10,8 @@ import xyz.hyffer.onemessage_server.storage.PopulateData;
 
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 /**
  * Integration test for {@link ClientCustomQuery}
  */
@@ -25,5 +27,13 @@ public class ClientCustomQueryITest {
     void catchupContacts_case1() {
         List<Contact> contacts = clientCustomQuery.catchupContacts(1, null, null, null, 15);
         System.out.println(contacts);
+    }
+
+    // TODO: more elaborate integration tests
+    @Test
+    void searchContact() {
+        List<Contact> contacts = clientCustomQuery.getContacts("test", 15);
+        System.out.println(contacts);
+        assertThat(contacts.size()).isEqualTo(1);
     }
 }
