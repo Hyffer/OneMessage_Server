@@ -1,5 +1,6 @@
 package xyz.hyffer.onemessage_server.client_api.service.cs_api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.ToString;
 import xyz.hyffer.onemessage_server.model.MessageSegment;
@@ -11,8 +12,11 @@ import java.util.List;
  */
 public abstract class ClientRequestBody {
 
+    public static class GetContactsDeserializer extends ClientRequestBodyDeserializer<ClientRequestBody.GetContacts> {}
+
     @Getter
     @ToString
+    @JsonDeserialize(using = GetContactsDeserializer.class)
     public static abstract class GetContacts extends ClientRequestBody {
         Boolean all_attr    = false;
         Integer limit       = 20;
@@ -70,8 +74,11 @@ public abstract class ClientRequestBody {
         }
     }
 
+    public static class GetMessagesDeserializer extends ClientRequestBodyDeserializer<ClientRequestBody.GetMessages> {}
+
     @Getter
     @ToString
+    @JsonDeserialize(using = GetMessagesDeserializer.class)
     public static abstract class GetMessages extends ClientRequestBody {
         Integer limit       = 20;
 

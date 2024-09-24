@@ -13,6 +13,8 @@ spring:
 
 logging:
   level:
+    xyz: TRACE
+    xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientRequestBodyDeserializer: INFO
     org:
       hibernate:
         SQL: DEBUG
