@@ -1,6 +1,5 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
-import xyz.hyffer.onemessage_server.client_api.controller_ws.payload.SendBody;
 import xyz.hyffer.onemessage_server.client_api.service.ClientPushService;
 import xyz.hyffer.onemessage_server.model.Contact;
 import xyz.hyffer.onemessage_server.model.Message;
@@ -28,6 +27,6 @@ public class ResponseHandler_send_message extends ResponseHandler {
 //        messageContentMapper.saveMessageContent(contact.get_CID(), message);
 //        contactMapper.updateContactStatus(contact);
 
-        ClientPushService.pushStatus(contact.get_CID(), SendBody.PushBody.PushEvent.RECEIVE_MESSAGE);
+//        ClientPushService.pushStatus(contact.get_CID(), SendBody.PushBody.PushEvent.RECEIVE_MESSAGE);
     }
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.hyffer.onemessage_server.client_api.service.ClientService;
 import xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientResponse;
@@ -31,7 +32,7 @@ public class ClientControllerTest {
     void get_contacts() throws Exception {
         given(clientService.getContacts(any())).willReturn(new ClientResponse.GetContacts(new ArrayList<>()));
         mockMvc.perform(get("/app/get_contacts")
-                        .content("{\"pinned\":true,\"limit\":50}").contentType("application/json"))
+                        .content("{\"pinned\":true,\"limit\":50}").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"contacts\":[]}"))
                 .andDo(result -> {
@@ -46,7 +47,7 @@ public class ClientControllerTest {
     @Test
     void get_contacts_error() throws Exception {
         mockMvc.perform(get("/app/get_contacts")
-                        .content("{\"a\":1}").contentType("application/json"))
+                        .content("{\"a\":1}").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
                 .andDo(result -> {
                     String responseBody = result.getResponse().getContentAsString();
