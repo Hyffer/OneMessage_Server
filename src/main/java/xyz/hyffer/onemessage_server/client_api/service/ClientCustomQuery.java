@@ -124,7 +124,7 @@ public class ClientCustomQuery {
         return page.getContent();
     }
 
-    List<Contact> getContacts(String key, int limit) {
+    List<Contact> searchContacts(String key, int limit) {
         Specification<Contact> spec =
                 (root, query, builder) -> builder.like(root.get(Contact_.remark), "%" + key + "%");
         Pageable pageable = headPageOf(limit, Sort.unsorted());

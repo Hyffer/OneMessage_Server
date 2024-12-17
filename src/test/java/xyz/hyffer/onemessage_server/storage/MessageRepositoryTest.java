@@ -28,6 +28,13 @@ public class MessageRepositoryTest extends RepositoryTest {
     }
 
     @Test
+    void findBy_Rank_not_exist() {
+        int invalid_rank = -1;
+        Optional<Message> result = messageRepository.findByRank(invalid_rank);
+        assertThat(result.isEmpty()).isTrue();
+    }
+
+    @Test
     void update_rank_increment() {
         int e_MID = data.messages.get(0).get_MID();
         Optional<Message> result = messageRepository.findById(e_MID);

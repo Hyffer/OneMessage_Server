@@ -32,7 +32,7 @@ public class ClientCustomQueryITest {
     // TODO: more elaborate integration tests
     @Test
     void searchContact() {
-        List<Contact> contacts = clientCustomQuery.getContacts("test", 15);
+        List<Contact> contacts = clientCustomQuery.searchContacts("test", 15);
         System.out.println(contacts);
         assertThat(contacts.size()).isEqualTo(1);
     }

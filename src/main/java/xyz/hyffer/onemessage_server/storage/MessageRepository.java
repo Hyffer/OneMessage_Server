@@ -6,6 +6,7 @@ import xyz.hyffer.onemessage_server.model.Message;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * JPA Repository of {@link Message} entity
@@ -18,4 +19,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer>, JpaS
     List<Message> findBy_MIDIn(Collection<Integer> _MIDs);
 
     int countBy_CiIDIn(Collection<Integer> _CiIDs);
+
+    Optional<Message> findByRank(int rank);
 }

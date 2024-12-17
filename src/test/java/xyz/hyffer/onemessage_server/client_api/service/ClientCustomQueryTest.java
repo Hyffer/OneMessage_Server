@@ -394,8 +394,8 @@ public class ClientCustomQueryTest {
     }
 
     @Test
-    void getContacts_3() {
-        clientCustomQuery.getContacts("Bob", 5);
+    void searchContacts_1() {
+        clientCustomQuery.searchContacts("Bob", 5);
         checkParams(
                 contactRepository,
                 null,
