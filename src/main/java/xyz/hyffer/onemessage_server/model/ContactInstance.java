@@ -24,7 +24,7 @@ public class ContactInstance {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     // ONLY maintained by Contact.addInstance, updateInstance and removeInstance
     @Setter(AccessLevel.PACKAGE)
     Contact attachedContact;
@@ -52,6 +52,18 @@ public class ContactInstance {
 
     // if you delete a friend or leave a group, it will be marked as deleted
     boolean deleted;
+
+    @Builder
+    public ContactInstance(int _SID, String id,
+                           String name, String remark, String type, String avatar) {
+        this._SID = _SID;
+        this.id = id;
+        this.name = name;
+        this.remark = remark;
+        this.type = type;
+        this.avatar = avatar;
+        this.deleted = false;
+    }
 
     @Builder(builderClassName = "ContactInstanceRawBuilder",
             builderMethodName = "rawBuilder", access = AccessLevel.PACKAGE)

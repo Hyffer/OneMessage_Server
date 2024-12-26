@@ -9,7 +9,7 @@ import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.deseria
 @JsonDeserialize(using = EventDeserializer.class)
 public class Event {
     long time;
-    long self_id;
+    String self_id;
     String post_type;
 
     public static class MetaEvent extends Event {
@@ -19,7 +19,7 @@ public class Event {
         public static class LifeCycle extends MetaEvent {
             String sub_type;
 
-            public LifeCycle(long time, long self_id, String post_type, String meta_event_type, String sub_type) {
+            public LifeCycle(long time, String self_id, String post_type, String meta_event_type, String sub_type) {
                 this.time = time;
                 this.self_id = self_id;
                 this.post_type = post_type;
@@ -40,17 +40,17 @@ public class Event {
     public static class MessageEvent extends Event {
         String message_type;
         String sub_type;
-        long contact_id;
+        String instance_id;
         Message message;
 
-        public MessageEvent(long time, long self_id, String post_type,
-                            String message_type, String sub_type, long contact_id) {
+        public MessageEvent(long time, String self_id, String post_type,
+                            String message_type, String sub_type, String instance_id) {
             this.time = time;
             this.self_id = self_id;
             this.post_type = post_type;
             this.message_type = message_type;
             this.sub_type = sub_type;
-            this.contact_id = contact_id;
+            this.instance_id = instance_id;
         }
 
     }

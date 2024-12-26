@@ -1,6 +1,6 @@
 package xyz.hyffer.onemessage_server.source_api.service.message_handler;
 
-import lombok.Data;
+import org.springframework.data.util.Pair;
 import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Api;
 
 /**
@@ -10,18 +10,21 @@ import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Api;
  * onEvent() in EventHandler or onResponse() in ResponseHandler will be called depending on whether it is an event or a response.
  * After processed the message received, a return list of ReqRespPair is expected.
  *
- * If a request is needed, it should be placed in attribute `api`, with responseClass and responseHandler set accordingly.
+ * If a request is needed, it should be placed in first of the pair, with the corresponding responseHandler in second.
  * If no need for request, just simply return null.
  */
-@Data
 public class ReqRespPair {
-    private Api api;
-    private Class responseClass;
-    private ResponseHandler responseHandler;
+    Pair<Api, ResponseHandler> pair;
 
-    public ReqRespPair(Api api, Class responseClass, ResponseHandler responseHandler) {
-        this.api = api;
-        this.responseClass = responseClass;
-        this.responseHandler = responseHandler;
+    public ReqRespPair(Api api, ResponseHandler responseHandler) {
+        pair = Pair.of(api, responseHandler);
+    }
+
+    public Api getRequestPayload() {
+        return pair.getFirst();
+    }
+
+    public ResponseHandler getResponseHandler() {
+        return pair.getSecond();
     }
 }

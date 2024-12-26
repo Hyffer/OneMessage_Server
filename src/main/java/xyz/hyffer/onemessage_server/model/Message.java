@@ -58,7 +58,7 @@ public class Message {
         ERROR, IN, OUT, SENDING
     }
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+//    @JdbcTypeCode(SqlTypes.NAMED_ENUM)    // has some issue with ddl-auto=update
     Status status;
 
     // TODO: metadata to refer to a specific message
@@ -88,6 +88,19 @@ public class Message {
 
     public Message() {
     }
+
+    @Builder
+    public Message(String type, String senderId, String senderName,
+                   Timestamp time, Status status,
+                   @Singular List<MessageSegment> segments) {
+        this.type = type;
+        this.senderId = senderId;
+        this.senderName = senderName;
+        this.time = time;
+        this.status = status;
+        this.segments = segments;
+    }
+
 
     @Builder(builderClassName = "MessageRawBuilder",
             builderMethodName = "rawBuilder", access = AccessLevel.PACKAGE)

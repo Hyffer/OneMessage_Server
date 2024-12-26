@@ -8,9 +8,9 @@ import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.ApiPara
 public class UserApiService {
 
     public static void postMessage(int _SID, Contact contact, Message message) {
-        SourceHandler handler = SourceHandlerManager.get(_SID);
-
-        ApiParam.ApiParam_send_message apiParam = new ApiParam.ApiParam_send_message();
+//        SourceHandler handler = SourceHandlerManager.get(_SID);
+//
+//        ApiParam.ApiParam_send_message apiParam = new ApiParam.ApiParam_send_message();
 //        String type = contact.getType();
 //        if (type.equals("Friend")) {
 //            apiParam.setMessage_type("private");

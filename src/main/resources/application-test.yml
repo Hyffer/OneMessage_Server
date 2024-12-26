@@ -19,6 +19,8 @@ logging:
       hibernate:
         SQL: DEBUG
       springframework:
+#        web: TRACE
+#        messaging: DEBUG
         transaction:
           interceptor: TRACE
         test:

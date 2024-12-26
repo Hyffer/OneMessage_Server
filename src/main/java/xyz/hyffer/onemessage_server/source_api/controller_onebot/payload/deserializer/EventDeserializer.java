@@ -10,6 +10,7 @@ import xyz.hyffer.onemessage_server.model.MessageSegment;
 import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.Event;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class EventDeserializer extends JsonDeserializer<Event> {
@@ -21,7 +22,7 @@ public class EventDeserializer extends JsonDeserializer<Event> {
 
         if (node.get("time") == null || node.get("self_id") == null || node.get("post_type") == null) throw new NotEventException("");
         final long time = node.get("time").asLong();
-        final long self_id = node.get("self_id").asLong();
+        final String self_id = node.get("self_id").asText();
         final String post_type = node.get("post_type").asText();
 
         switch (post_type) {
@@ -41,33 +42,42 @@ public class EventDeserializer extends JsonDeserializer<Event> {
             case "message":
                 final String message_type = node.get("message_type").asText();
                 final String sub_type = node.get("sub_type").asText();
-                long contact_id = 0;
+                String instance_id = null;
                 Message message = null;
                 switch (message_type) {
                     case "private":
                         if (!sub_type.equals("friend")) {
                             break;
                         }
-                        contact_id = node.get("user_id").asLong();
-//                        message = new Message(new Timestamp(time * 1000), "In");
+                        instance_id = node.get("user_id").asText();
+                        message = Message.builder()
+                                .time(new Timestamp(time * 1000))
+                                .status(Message.Status.IN)
+                                .build();
                         break;
                     case "group":
                         String type;
-                        long senderId;
+                        String senderId;
                         String senderName;
                         if (sub_type.equals("normal")) {
                             type = "Normal";
-                            senderId = node.get("sender").get("user_id").asLong();
+                            senderId = node.get("sender").get("user_id").asText();
                             senderName = node.get("sender").get("card").asText();
                         } else if (sub_type.equals("anonymous")) {
                             type = "Anonymous";
-                            senderId = node.get("anonymous").get("id").asLong();
+                            senderId = node.get("anonymous").get("id").asText();
                             senderName = node.get("anonymous").get("name").asText();
                         } else {
                             break;
                         }
-                        contact_id = node.get("group_id").asLong();
-//                        message = new Message(new Timestamp(time * 1000), "In", type, senderId, senderName);
+                        instance_id = node.get("group_id").asText();
+                        message = Message.builder()
+                                .type(type)
+                                .senderId(senderId)
+                                .senderName(senderName)
+                                .time(new Timestamp(time * 1000))
+                                .status(Message.Status.IN)
+                                .build();
                         break;
                 }
                 if (message != null) {
@@ -76,8 +86,8 @@ public class EventDeserializer extends JsonDeserializer<Event> {
                         MessageSegment segment = codec.treeToValue(n, MessageSegment.class);
                         segments.add(segment);
                     }
-//                    message.setSegments(segments);
-                    Event.MessageEvent event = new Event.MessageEvent(time, self_id, post_type, message_type, sub_type, contact_id);
+                    message.setSegments(segments);
+                    Event.MessageEvent event = new Event.MessageEvent(time, self_id, post_type, message_type, sub_type, instance_id);
                     event.setMessage(message);
                     return event;
                 }

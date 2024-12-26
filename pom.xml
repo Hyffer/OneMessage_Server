@@ -85,11 +85,13 @@
             <groupId>org.logicng</groupId>
             <artifactId>logicng</artifactId>
             <version>2.5.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.logicng</groupId>
             <artifactId>logicng-parser-j11</artifactId>
             <version>2.5.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

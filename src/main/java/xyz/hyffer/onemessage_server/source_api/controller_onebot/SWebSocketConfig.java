@@ -25,7 +25,7 @@ public class SWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(sWebSocketHandler, "source")
+        registry.addHandler(sWebSocketHandler, "source", "source/*")
                 .addInterceptors(sHandshakeInterceptor);
     }
 

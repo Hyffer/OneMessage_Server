@@ -7,7 +7,18 @@ spring:
     database: postgresql
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+
+logging:
+  level:
+    xyz: TRACE
+    xyz.hyffer.onemessage_server.client_api.service.cs_api.ClientRequestBodyDeserializer: INFO
+    org:
+      hibernate:
+        SQL: DEBUG
+      springframework:
+        transaction:
+          interceptor: TRACE
 
 om:
   allowed-origins: "*"  # Allowed origins for browser client

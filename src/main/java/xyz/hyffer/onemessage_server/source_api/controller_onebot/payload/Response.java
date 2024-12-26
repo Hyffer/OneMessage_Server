@@ -2,8 +2,8 @@ package xyz.hyffer.onemessage_server.source_api.controller_onebot.payload;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
-import xyz.hyffer.onemessage_server.model.Contact;
-import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.deserializer.ResponseDeserializer_get_contact_list;
+import xyz.hyffer.onemessage_server.model.ContactInstance;
+import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.deserializer.ResponseDeserializer_get_instance_list;
 import xyz.hyffer.onemessage_server.source_api.controller_onebot.payload.deserializer.ResponseDeserializer_send_message;
 
 import java.util.List;
@@ -15,11 +15,11 @@ public class Response {
     int retcode;
 
     @Data
-    @JsonDeserialize(using = ResponseDeserializer_get_contact_list.class)
-    public static class Response_get_contact_list extends Response {
-        List<Contact> data;
+    @JsonDeserialize(using = ResponseDeserializer_get_instance_list.class)
+    public static class Response_get_instance_list extends Response {
+        List<ContactInstance> data;
 
-        public Response_get_contact_list(String status, int retcode) {
+        public Response_get_instance_list(String status, int retcode) {
             this.status = status;
             this.retcode = retcode;
         }

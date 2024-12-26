@@ -95,7 +95,8 @@ public class DataGenerator {
         // make a deep copy of `testContacts`
         // prevent modifying original objects
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);    // takes all fields, and only fields
         try {
             List<Contact> contacts = mapper.readValue(mapper.writeValueAsString(testContacts), new TypeReference<>() {});
             // maintain relation

@@ -1,6 +1,5 @@
 package xyz.hyffer.onemessage_server.source_api.controller_onebot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -8,19 +7,20 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import xyz.hyffer.onemessage_server.source_api.service.SourceHandler;
+import xyz.hyffer.onemessage_server.source_api.service.SourceHandlerContext;
 
 import java.util.List;
 
 @Service("source_websocket_handler")
 public class SWebSocketHandler extends TextWebSocketHandler {
 
-    @Resource(name = "ObjectMapperOBMSS")
-    private ObjectMapper objectMapper;
+    @Resource
+    private SourceHandlerContext ctx;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         int _SID = get_SID(session);
-        SourceHandler sourceHandler = new SourceHandler(objectMapper, _SID, session);
+        SourceHandler sourceHandler = new SourceHandler(ctx, _SID, session);
         SourceHandlerManager.put(_SID, sourceHandler);
     }
 
